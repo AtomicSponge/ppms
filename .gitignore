@@ -1,6 +1,6 @@
 #  Ignore vs code stuffs
 .vscode/
-py_synth.code-workspace
+ppms.code-workspace
 
 #  Ignore backup
 bak/
