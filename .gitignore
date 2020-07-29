@@ -1,0 +1,16 @@
+#  Ignore vs code stuffs
+.vscode/
+py_synth.code-workspace
+
+#  Ignore backup
+bak/
+run_backup.bat
+
+#  Ignore python stuffs
+__pycache__/
+
+#  Ignore _tests
+_tests/
+
+#  Ignore settings.json
+settings.json
