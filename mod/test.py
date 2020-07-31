@@ -1,15 +1,16 @@
 #
 #  Python Polyphonic MIDI Synthesizer
 #
-#  Filename:  osc.py
+#  Filename:  test.py
 #  By:  Matthew Evans
 #  See LICENSE.md for copyright information.
 #
 
-##  test_module class
-# ...
+##  PPMS Synth Module for testing the patchboard.
 class test_module:
-    ## Process
+    ## Test process.
+    #  \param signal Signal data to modify
+    #  \return Modified signal data
     def process(signal):
         print("test value:")
         return signal
