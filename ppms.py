@@ -119,6 +119,7 @@ except IOError:
     print("Settings not found, using defaults...")
     settings = create_default_settings()
 
+#  Make sure settings were created
 if settings is None:
     print("Error creating settings!  Exiting...")
     sys.exit()
@@ -130,28 +131,28 @@ except (EOFError, KeyboardInterrupt):
     print("Error opening MIDI port!  Exiting...")
     sys.exit()
 
-#  Index for audio output stream
-frame_index = 0
-#  The output data
-audio_signal = np.zeros(shape=(settings['sample_rate']), dtype=np.int16)
-
 #  Initialize synth objects
 osc = oscillator(settings['sample_rate'])
 patches = patchboard()
 #  For now add patches here
 patches.add_module(test_module)
 
+#  Index for audio output stream
+frame_index = 0
+#  The output data
+audio_signal = np.zeros(shape=(settings['sample_rate']), dtype=np.int16)
+
 #  Set MIDI callback
 midiin.set_callback(midi_input_handler(port_name))
 
 running = True
-print()
-print("PPMS loaded!")
 
 #  Play sounds while running
 try:
     with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.int16,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
+        print()
+        print("PPMS loaded!")
         while running:  #  Loop until Ctrl+C break
             time.sleep(1)
 except Exception as e:

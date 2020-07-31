@@ -6,6 +6,9 @@ ppms.code-workspace
 bak/
 run_backup.bat
 
+#  Ignore documentation
+docs/
+
 #  Ignore python stuffs
 __pycache__/
 
