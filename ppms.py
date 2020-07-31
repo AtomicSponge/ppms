@@ -152,13 +152,13 @@ print("PPMS loaded!")
 try:
     with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.int16,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
-        while running:
+        while running:  #  Loop until Ctrl+C break
             time.sleep(1)
 except Exception as e:
     print(type(e).__name__ + ': ' + str(e))
     print("Exiting...")
 except KeyboardInterrupt:
-    print("Exiting...")  #  Loop until Ctrl+C break
+    print("Exiting...")
 finally:
     #  Clean up
     midiin.close_port()
