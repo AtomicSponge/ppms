@@ -31,11 +31,14 @@ from mod.patch import patchboard
 ##########################################################
 def create_default_settings():
     return {
-        "master_volume": 50,
-        "sample_rate": 44100,
-        "key_down": 144,
-        "key_up": 128,
-        "modules": [ "mod.test" ]
+        'master_volume': 50,
+        'sample_rate': 44100,
+        'key_down': 144,
+        'key_up': 128,
+        'modules': [ 'mod.test' ],
+        'bindings': [
+            { 'master_volume': [ 176, 29 ] }
+        ]
     }
 ##########################################################
 
@@ -116,9 +119,12 @@ class midi_input_handler(object):
             audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.int16))
             del self.__note_map[message[1]]
 
-        #  (☞ﾟヮﾟ)☞  Adjust volume
-        if(message[0] >= 176 and message[0] <= 179 and message[1] == 29):
-            settings['master_volume'] = message[2]
+        for bindings in settings['bindings']:
+            #  (☞ﾟヮﾟ)☞  Adjust volume
+            if(message[0] >= bindings['master_volume'][0]
+            and message[0] <= bindings['master_volume'][0] + 3
+            and message[1] == bindings['master_volume'][1]):
+                settings['master_volume'] = message[2]
 ##########################################################
 #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
 ##########################################################
@@ -143,6 +149,7 @@ except IOError:
 if settings is None:
     print("Error creating settings!  Exiting...")
     sys.exit()
+#print(settings)
 
 #  Prompt for MIDI input port if not passed
 try:
@@ -186,6 +193,7 @@ finally:
     try:
         with open("settings.json", "w") as json_file:
             json.dump(settings, json_file)
+            print("Settings saved!")
     except IOError:
         print("Error saving settings!")
     print("PPMS unloaded!")
