@@ -153,7 +153,6 @@ except (EOFError, KeyboardInterrupt):
 #  Initialize synth objects
 osc = oscillator(settings['sample_rate'])
 patches = patchboard()
-
 load_ppms_modules()
 
 #  Index for audio output stream
