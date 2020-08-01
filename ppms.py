@@ -14,10 +14,11 @@
 #
 ##########################################################
 
-import sys, time, json
+import sys, time, json, importlib
 
 import numpy as np
 import sounddevice as sd
+from pydoc import locate
 
 import rtmidi
 from rtmidi.midiutil import open_midiinput
@@ -25,18 +26,35 @@ from rtmidi.midiutil import open_midiinput
 from mod.osc import oscillator
 from mod.patch import patchboard
 
-from mod.test import test_module
-
 ##########################################################
 #  Function to return a map of the default settings
 ##########################################################
 def create_default_settings():
     return {
-        'master_volume': 0,
-        'sample_rate': 44100,
-        'key_down': 144,
-        'key_up': 128
+        "master_volume": 50,
+        "sample_rate": 44100,
+        "key_down": 144,
+        "key_up": 128,
+        "modules": [ "mod.test" ]
     }
+##########################################################
+
+##########################################################
+#  Function to load modules into patchboard
+##########################################################
+def load_ppms_modules():
+    global settings, patches
+    patches.clear_modules()
+    #  Take modules listed in settings and load into the patchboard
+    for load_module in settings['modules']:
+        mod = importlib.import_module(load_module)
+        #print(mod.__name__)
+        #  Find the class name from the module and load
+        for member_name in dir(mod):
+            if member_name.__contains__("__") == False:
+                #print(mod.__name__ + "." + member_name)
+                patches.add_module(locate(mod.__name__ + "." + member_name))
+    print("Modules loaded!")
 ##########################################################
 
 ##########################################################
@@ -107,6 +125,7 @@ class midi_input_handler(object):
 ##########################################################
 #  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
 ##########################################################
+print()
 #  Check if MIDI input port was passed
 port = sys.argv[1] if len(sys.argv) > 1 else None
 
@@ -134,8 +153,8 @@ except (EOFError, KeyboardInterrupt):
 #  Initialize synth objects
 osc = oscillator(settings['sample_rate'])
 patches = patchboard()
-#  For now add patches here
-patches.add_module(test_module)
+
+load_ppms_modules()
 
 #  Index for audio output stream
 frame_index = 0
@@ -151,7 +170,6 @@ running = True
 try:
     with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.int16,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
-        print()
         print("PPMS loaded!")
         while running:  #  Loop until Ctrl+C break
             time.sleep(1)
