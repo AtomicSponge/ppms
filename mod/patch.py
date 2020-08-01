@@ -31,5 +31,5 @@ class patchboard:
     #  @return Modified signal data
     def patch(self, signal):
         for module in self.__patches:
-            signal = module.process(signal)
+            signal = module.process(module, signal)
         return signal

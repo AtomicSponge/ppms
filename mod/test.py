@@ -8,9 +8,13 @@
 
 ##  PPMS Synth Module for testing the patchboard.
 class test_module:
+    ##  Store test_value
+    __test_value = 0
+
     ## Test process.
+    #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(signal):
-        print("test value:")
+    def process(self, signal):
+        print("Test value:", self.__test_value)
         return signal

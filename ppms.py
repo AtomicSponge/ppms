@@ -51,9 +51,10 @@ def load_ppms_modules():
         #print(mod.__name__)
         #  Find the class name from the module and load
         for member_name in dir(mod):
+            #  Find the non-private member
             if member_name.__contains__("__") == False:
-                #print(mod.__name__ + "." + member_name)
                 patches.add_module(locate(mod.__name__ + "." + member_name))
+                #print(mod.__name__ + "." + member_name)
     print("Modules loaded!")
 ##########################################################
 
