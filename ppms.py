@@ -15,10 +15,10 @@
 ##########################################################
 
 import sys, time, json, importlib
+from pydoc import locate
 
 import numpy as np
 import sounddevice as sd
-from pydoc import locate
 
 import rtmidi
 from rtmidi.midiutil import open_midiinput
