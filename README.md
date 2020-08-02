@@ -16,7 +16,7 @@ Requires the following packages to be installed:
 
 ## Settings
 
-Settings are found in the file *settings.json*.  One will be created automatically the first time the program is ran.
+Settings can be found in the file *settings.json*.  One will be created automatically the first time the program is ran.
 
 ### Keyboard events
 The MIDI note on/off messages.
