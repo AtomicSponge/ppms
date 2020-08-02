@@ -37,7 +37,8 @@ def create_default_settings():
         'key_up': 128,
         'modules': [ 'mod.test' ],
         'bindings': [
-            { 'master_volume': [ 176, 29 ] }
+            [ 'master_volume', 176, 29 ],
+            [ 'test_module.set_a_value', 176, 118 ]
         ]
     }
 ##########################################################
@@ -94,37 +95,51 @@ class midi_input_handler(object):
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sawtooth(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
+            return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
         if message[0] == settings['key_down'] + 1:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.triangle(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
+            return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
         if message[0] == settings['key_down'] + 2:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.square(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
+            return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
         if message[0] == settings['key_down'] + 3:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sine(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
+            return
 
         #  ༼つ ◕_◕ ༽つ  Stop note
         if message[0] >= settings['key_up'] and message[0] <= settings['key_up'] + 3:
             temp_signal = self.__note_map.get(message[1])
             audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.int16))
             del self.__note_map[message[1]]
+            return
 
+        #  (☞ﾟヮﾟ)☞  Check bindings
         for bindings in settings['bindings']:
-            #  (☞ﾟヮﾟ)☞  Adjust volume
-            if(message[0] >= bindings['master_volume'][0]
-            and message[0] <= bindings['master_volume'][0] + 3
-            and message[1] == bindings['master_volume'][1]):
-                settings['master_volume'] = message[2]
+            if(message[0] >= bindings[1] and message[0] <= bindings[1] + 3
+            and message[1] == bindings[2]):
+                #  Adjust master volume
+                if(bindings[0] == "master_volume"):
+                    settings['master_volume'] = message[2]
+                    return
+                #elif
+                #  Find the loaded module and process its control
+                else:
+                    mod = bindings[0].split(".", 1)
+                    getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
+                    return
+
 ##########################################################
 #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
 ##########################################################

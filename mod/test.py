@@ -19,8 +19,8 @@ class test_module:
         print("Test value:", self.__test_value)
         return signal
 
-    ## Set control value
+    ## Set test value
     #  @param self Object pointer
     #  @param val New value to set
-    def set_control_value(self, val):
+    def set_a_value(self, val):
         self.__test_value = val

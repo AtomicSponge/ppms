@@ -25,6 +25,16 @@ class patchboard:
     def clear_modules(self):
         self.__patches.clear()
 
+    ##  Get a module by name.
+    #  @param self Object pointer
+    #  @param name Name of module to search for
+    #  @return Module object if found, else None
+    def get_module(self, name):
+        for module in self.__patches:
+            if(name == module.__name__):
+                return module
+        return None
+
     ##  Process modules in order.
     #  @param self Object pointer
     #  @param signal Signal data to modify
