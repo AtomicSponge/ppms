@@ -14,6 +14,45 @@ Requires the following packages to be installed:
 
 -----
 
+## Settings
+
+Settings is loaded and saved from *settings.json*
+
+### Keyboard events
+```
+'key_down': 144,
+'key_up': 128,
+```
+
+### Loading modules
+```
+#  List modules to load
+#  Patchboard processes these in order
+'modules': [ 'mod.test' ],
+```
+
+### MIDI bindings
+```
+#  MIDI bindings
+#  Format:  binding_name, midi[0], midi[1]
+'bindings': [
+    #  Default bindings
+    [ 'master_volume', 176, 29 ],
+
+    #  Module bindings
+    #  Binding names should have the format class_name.member_name
+    [ 'test_module.set_a_value', 176, 118 ]
+],
+```
+
+### Saving data
+```
+#  For saving module data
+'module_data': []
+```
+
+-----
+
 ## Modules
 
 ### Requirements
@@ -63,38 +102,4 @@ class test_module:
     #  @param val New value to set
     def set_a_value(self, val):
         self.__test_value = val
-```
-
------
-
-## Settings
-
-Settings is loaded and saved from *settings.json*
-
-### Loading modules
-```
-#  List modules to load
-#  Patchboard processes these in order
-'modules': [ 'mod.test' ],
-```
-
-
-### MIDI bindings
-```
-#  MIDI bindings
-#  Format:  binding_name, midi[0], midi[1]
-'bindings': [
-    #  Default bindings
-    [ 'master_volume', 176, 29 ],
-
-    #  Module bindings
-    #  Binding names should have the format class_name.member_name
-    [ 'test_module.set_a_value', 176, 118 ]
-],
-```
-
-### Saving data
-```
-#  For saving module data
-'module_data': []
 ```
