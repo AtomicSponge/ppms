@@ -80,8 +80,8 @@ class midi_input_handler(object):
     def __init__(self, port):
         self.port = port
         self._wallclock = time.time()
-
         self.__note_map = dict()
+
     #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
     def __call__(self, event, data=None):
         global settings, audio_signal, osc, patches
