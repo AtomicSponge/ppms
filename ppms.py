@@ -35,9 +35,16 @@ def create_default_settings():
         'sample_rate': 44100,
         'key_down': 144,
         'key_up': 128,
+
+        #  List modules to load
         'modules': [ 'mod.test' ],
+
         'bindings': [
+            #  Default bindings
             [ 'master_volume', 176, 29 ],
+
+            #  Module bindings
+            #  Bindings should have the format class_name.member_name
             [ 'test_module.set_a_value', 176, 118 ]
         ]
     }
@@ -49,16 +56,17 @@ def create_default_settings():
 def load_ppms_modules():
     global settings, patches
     patches.clear_modules()
+
     #  Take modules listed in settings and load into the patchboard
     for load_module in settings['modules']:
         mod = importlib.import_module(load_module)
         #print(mod.__name__)
-        #  Find the class name from the module and load
+        #  Find the class name, should be the only non-private member
         for member_name in dir(mod):
-            #  Find the non-private member
             if member_name.__contains__("__") == False:
                 patches.add_module(locate(mod.__name__ + "." + member_name))
                 #print(mod.__name__ + "." + member_name)
+
     print("Modules loaded!")
 ##########################################################
 
@@ -134,6 +142,7 @@ class midi_input_handler(object):
                     settings['master_volume'] = message[2]
                     return
                 #elif
+                    #return
                 #  Find the loaded module and process its control
                 else:
                     mod = bindings[0].split(".", 1)
