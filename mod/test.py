@@ -11,7 +11,7 @@ class test_module:
     ##  Store test_value
     __test_value = 0
 
-    ## Test process.
+    ## Test process, simply print the test_value.
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
@@ -19,7 +19,7 @@ class test_module:
         print("Test value:", self.__test_value)
         return signal
 
-    ##  Save data.
+    ##  Build an array of save data for the module.
     #  Bindings should have the format class_name.member_name.
     #  @param self Object pointer
     #  @return Module data to save

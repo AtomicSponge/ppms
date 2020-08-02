@@ -37,6 +37,7 @@ def create_default_settings():
         'key_up': 128,
 
         #  List modules to load
+        #  Patchboard processes these in order
         'modules': [ 'mod.test' ],
 
         #  MIDI bindings
@@ -228,7 +229,7 @@ finally:
         #  First update the module save data
         settings['module_data'] = patches.save_data()
         with open("settings.json", "w") as json_file:
-            json.dump(settings, json_file)
+            json.dump(settings, json_file, indent=4)
             print("Settings saved!")
     except IOError:
         print("Error saving settings!")
