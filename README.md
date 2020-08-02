@@ -16,22 +16,25 @@ Requires the following packages to be installed:
 
 ## Settings
 
-Settings is loaded and saved from *settings.json*
+Settings are found in the file *settings.json*.  One will be created automatically the first time the program is ran.
 
 ### Keyboard events
+The MIDI note on/off messages.
 ```
 'key_down': 144,
 'key_up': 128,
 ```
 
 ### Loading modules
+Load modules to process signal.  The signal will be filtered through each module in order added.
 ```
 #  List modules to load
 #  Patchboard processes these in order
 'modules': [ 'mod.test' ],
 ```
 
-### MIDI bindings
+### MIDI control bindings
+Bind MIDI controls to modules or general settings.
 ```
 #  MIDI bindings
 #  Format:  binding_name, midi[0], midi[1]
@@ -46,6 +49,7 @@ Settings is loaded and saved from *settings.json*
 ```
 
 ### Saving data
+Modules will store their data values here on shutdown, then restore them on next run.
 ```
 #  For saving module data
 'module_data': []
@@ -73,7 +77,7 @@ def save_data(self):
     ]
 ```
 
-### Example test.py
+### Example mod.test.py
 ```
 ##  PPMS Synth Module for testing the patchboard.
 class test_module:
