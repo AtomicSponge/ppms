@@ -35,6 +35,15 @@ class patchboard:
                 return module
         return None
 
+    ##  Save all module data.
+    #  @param self Object pointer
+    #  @return List of all module save data
+    def save_data(self):
+        data = []
+        for module in self.__patches:
+            data += module.save_data(module)
+        return data
+
     ##  Process modules in order.
     #  @param self Object pointer
     #  @param signal Signal data to modify

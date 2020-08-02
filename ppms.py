@@ -39,14 +39,19 @@ def create_default_settings():
         #  List modules to load
         'modules': [ 'mod.test' ],
 
+        #  MIDI bindings
+        #  Format:  binding_name, midi[0], midi[1]
         'bindings': [
             #  Default bindings
             [ 'master_volume', 176, 29 ],
 
             #  Module bindings
-            #  Bindings should have the format class_name.member_name
+            #  Binding names should have the format class_name.member_name
             [ 'test_module.set_a_value', 176, 118 ]
-        ]
+        ],
+
+        #  For saving module data
+        'module_data': []
     }
 ##########################################################
 
@@ -66,6 +71,11 @@ def load_ppms_modules():
             if member_name.__contains__("__") == False:
                 patches.add_module(locate(mod.__name__ + "." + member_name))
                 #print(mod.__name__ + "." + member_name)
+
+    #  Now load data for the modules
+    for module_data in settings['module_data']:
+        mod = module_data[0].split(".", 1)
+        getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
 
     print("Modules loaded!")
 ##########################################################
@@ -215,6 +225,8 @@ finally:
     del midiin
     #  Save settings
     try:
+        #  First update the module save data
+        settings['module_data'] = patches.save_data()
         with open("settings.json", "w") as json_file:
             json.dump(settings, json_file)
             print("Settings saved!")

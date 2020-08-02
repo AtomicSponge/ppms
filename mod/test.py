@@ -19,7 +19,16 @@ class test_module:
         print("Test value:", self.__test_value)
         return signal
 
-    ## Set test value
+    ##  Save data.
+    #  Bindings should have the format class_name.member_name.
+    #  @param self Object pointer
+    #  @return Module data to save
+    def save_data(self):
+        return [
+            [ 'test_module.set_a_value', self.__test_value ]
+        ]
+
+    ## Set test value.
     #  @param self Object pointer
     #  @param val New value to set
     def set_a_value(self, val):
