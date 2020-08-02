@@ -16,13 +16,25 @@ Requires the following packages to be installed:
 
 ## Modules
 
-Requires:
+### Requirements
+
+- __process function__
 ```
 def process(self, signal):
-def save_data(self):
+    #  Do something with the signal
+    return signal
 ```
 
-### Example
+- __save_data function__
+```
+def save_data(self):
+    return [
+        [ 'example.control_a', self.value_a ],
+        [ 'example.control_b', self.value_b ]
+    ]
+```
+
+### Example test.py
 ```
 ##  PPMS Synth Module for testing the patchboard.
 class test_module:
