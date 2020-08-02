@@ -10,7 +10,10 @@
 #  By:  Matthew Evans
 #  See LICENSE.md for copyright information.
 #
-#  Reads MIDI input and plays notes.
+#  See README.md for usage information.
+#
+#  Requires a MIDI input device.
+#  Virtual one should work as long as rtmidi can see the port.
 #
 ##########################################################
 
