@@ -1,10 +1,6 @@
 ## Python Polyphonic MIDI Synthesizer
 
-[*Python3*](https://www.python.org/) script that simulates a modular synthesizer.  Requires a separate MIDI input device.
-
-When a key is pressed, a sample is generated then added to the output stream.  It is then stored in a reference map.
-
-When releasing a key, the sample is retrieved from the reference map and removed from the output stream.
+[*Python3*](https://www.python.org/) script that simulates a modular synthesizer.  Requires a separate MIDI input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
 
 Requires the following packages to be installed:
 - [numpy](https://numpy.org/)
