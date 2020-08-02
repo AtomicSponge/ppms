@@ -17,8 +17,8 @@ Settings can be found in the file *settings.json*.  One will be created automati
 ### Keyboard events
 The MIDI note on/off messages.
 ```
-'key_down': 144,
-'key_up': 128,
+'note_on': 144,
+'note_off': 128,
 ```
 
 ### Loading modules

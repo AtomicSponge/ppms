@@ -37,8 +37,8 @@ def create_default_settings():
     return {
         'master_volume': 50,
         'sample_rate': 44100,
-        'key_down': 144,
-        'key_up': 128,
+        'note_on': 144,
+        'note_off': 128,
 
         #  List modules to load
         #  Patchboard processes these in order
@@ -114,35 +114,35 @@ class midi_input_handler(object):
         print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
-        if message[0] == settings['key_down']:
+        if message[0] == settings['note_on']:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sawtooth(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
-        if message[0] == settings['key_down'] + 1:
+        if message[0] == settings['note_on'] + 1:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.triangle(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
-        if message[0] == settings['key_down'] + 2:
+        if message[0] == settings['note_on'] + 2:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.square(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
-        if message[0] == settings['key_down'] + 3:
+        if message[0] == settings['note_on'] + 3:
             temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sine(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Stop note
-        if message[0] >= settings['key_up'] and message[0] <= settings['key_up'] + 3:
+        if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
             temp_signal = self.__note_map.get(message[1])
             audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.int16))
             del self.__note_map[message[1]]
