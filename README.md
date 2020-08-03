@@ -1,6 +1,6 @@
 ## Python Polyphonic MIDI Synthesizer
 
-[*Python3*](https://www.python.org/) script that simulates a modular synthesizer.  Requires a separate MIDI input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
+*[Python3](https://www.python.org/) script* that simulates a modular synthesizer.  Requires a separate MIDI input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
 
 Requires the following packages to be installed:
 - [numpy](https://numpy.org/)
@@ -14,8 +14,14 @@ Requires the following packages to be installed:
 
 Settings can be found in the file *settings.json*.  One will be created automatically the first time the program is ran.
 
+### Sample rate
+You can set the sample rate here.  Defaults to 44100Hz.
+```
+'sample_rate': 44100,
+```
+
 ### Keyboard events
-The MIDI note on/off messages.
+The MIDI note on/off messages.  Defaults to the following:
 ```
 'note_on': 144,
 'note_off': 128,
