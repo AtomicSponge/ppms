@@ -173,8 +173,9 @@ class midi_input_handler(object):
 ##########################################################
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
-parser.add_argument("-p", "--port", metavar="N", type=int, help="MIDI Port number to connect to.")
+parser.add_argument("-p", "--port", dest="port", metavar="N", type=int, help="MIDI port number to connect to.")
 parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
+parser.set_defaults(port=None)
 parser.set_defaults(defaults=False)
 args = parser.parse_args()
 

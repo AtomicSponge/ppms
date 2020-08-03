@@ -28,7 +28,7 @@ The MIDI note on/off messages.  Defaults to the following:
 ```
 
 ### Loading modules
-Load modules to process signal.  The signal will be filtered through each module in order added.
+Load modules to process the signal.  The signal will be filtered through each module in order added.
 ```
 #  List modules to load
 #  Patchboard processes these in order
@@ -61,7 +61,7 @@ Modules will store their data values here on shutdown, then restore them on next
 
 ## Modules
 
-### Requirements
+To make a module, create a Python file in the *mod* folder.  Define the module as a class, then define the following functions.
 
 - __process function__
 ```
@@ -78,6 +78,8 @@ def save_data(self):
         [ 'example.control_b', self.value_b ]
     ]
 ```
+
+For each control in the module, create a seperate function to set it's value.
 
 ### Example mod.test.py
 ```
