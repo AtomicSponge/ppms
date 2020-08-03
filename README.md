@@ -12,7 +12,7 @@ Requires the following packages to be installed:
 
 ## Settings
 
-Settings can be found in the file *settings.json*.  One will be created automatically the first time the program is ran.
+Settings can be found in the file *settings.json*.  One will be created automatically the first time the script is ran.
 
 ### Sample rate
 You can set the sample rate here.  Defaults to 44100Hz.

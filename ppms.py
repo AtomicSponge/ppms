@@ -100,10 +100,11 @@ def audio_callback(outdata, frames, time, status):
 #  \START/ MIDI Input handler   ♪ヽ( ⌒o⌒)人(⌒-⌒ )v ♪
 ##########################################################
 class midi_input_handler(object):
-    def __init__(self, port):
+    def __init__(self, port, noimpact):
         self.port = port
         self._wallclock = time.time()
         self.__note_map = dict()
+        self.__noimpact = noimpact
 
     #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
     def __call__(self, event, data=None):
@@ -113,30 +114,33 @@ class midi_input_handler(object):
         self._wallclock += deltatime
         print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
+        if(self.__noimpact): impact = 50
+        else: impact = message[2]
+
         #  ༼つ ◕_◕ ༽つ  Play saw note
         if message[0] == settings['note_on']:
-            temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sawtooth(message[1]))
+            temp_signal = settings['master_volume'] * impact * patches.patch(osc.sawtooth(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
         if message[0] == settings['note_on'] + 1:
-            temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.triangle(message[1]))
+            temp_signal = settings['master_volume'] * impact * patches.patch(osc.triangle(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
         if message[0] == settings['note_on'] + 2:
-            temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.square(message[1]))
+            temp_signal = settings['master_volume'] * impact * patches.patch(osc.square(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
         if message[0] == settings['note_on'] + 3:
-            temp_signal = settings['master_volume'] * message[2] * patches.patch(osc.sine(message[1]))
+            temp_signal = settings['master_volume'] * impact * patches.patch(osc.sine(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
             self.__note_map.update({message[1]: temp_signal})
             return
@@ -174,12 +178,12 @@ class midi_input_handler(object):
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
 parser.add_argument("-p", "--port", dest="port", metavar="N", type=int, help="MIDI port number to connect to.")
+parser.add_argument("--noimpact", dest="noimpact", action="store_true", help="Disable keyboard impact.")
 parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
 parser.set_defaults(port=None)
+parser.set_defaults(noimpact=False)
 parser.set_defaults(defaults=False)
 args = parser.parse_args()
-
-print()
 
 #  If --defaults was passed, create default settings.json file then exit.
 if(args.defaults):
@@ -225,7 +229,7 @@ frame_index = 0
 audio_signal = np.zeros(shape=(settings['sample_rate']), dtype=np.int16)
 
 #  Set MIDI callback
-midiin.set_callback(midi_input_handler(port_name))
+midiin.set_callback(midi_input_handler(port_name, args.noimpact))
 
 running = True
 
