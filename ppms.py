@@ -18,7 +18,7 @@
 #
 ##########################################################
 
-import sys, time, json, importlib
+import sys, time, json, argparse, importlib
 from pydoc import locate
 
 import numpy as np
@@ -171,9 +171,25 @@ class midi_input_handler(object):
 ##########################################################
 #  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
 ##########################################################
+#  Parse arguments
+parser = argparse.ArgumentParser(description="Play some notes.")
+parser.add_argument("-p", "--port", metavar="N", type=int, help="MIDI Port number to connect to.")
+parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
+parser.set_defaults(defaults=False)
+args = parser.parse_args()
+
 print()
-#  Check if MIDI input port was passed
-port = sys.argv[1] if len(sys.argv) > 1 else None
+
+#  If --defaults was passed, create default settings.json file then exit.
+if(args.defaults):
+    settings = create_default_settings()
+    try:
+        with open("settings.json", "w") as json_file:
+            json.dump(settings, json_file, indent=4)
+            print("Default settings.json created.  Exiting...")
+    except IOError:
+        print("Error creating settings.json!  Exiting...")
+    sys.exit(0)
 
 #  Try loading settings
 try:
@@ -190,9 +206,9 @@ if settings is None:
     sys.exit()
 #print(settings)
 
-#  Prompt for MIDI input port if not passed
+#  Connect to MIDI input port.  Will prompt if not passed.
 try:
-    midiin, port_name = open_midiinput(port)
+    midiin, port_name = open_midiinput(args.port)
 except (EOFError, KeyboardInterrupt):
     print("Error opening MIDI port!  Exiting...")
     sys.exit()
@@ -216,7 +232,7 @@ running = True
 try:
     with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.int16,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
-        print("PPMS loaded!")
+        print("PPMS loaded!  Press Control-C to exit.")
         while running:  #  Loop until Ctrl+C break
             time.sleep(1)
 except Exception as e:
