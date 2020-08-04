@@ -1,6 +1,27 @@
 ## Python Polyphonic MIDI Synthesizer
 
-*[Python3](https://www.python.org/) script* that simulates a modular synthesizer.  Requires a separate MIDI input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
+[Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
+
+#### Oscillators
+Generates a waveform based on the following types:
+ - sawtooth
+ - triangle
+ - square
+ - sine
+
+You can select which waveform is generated using MIDI program change.
+
+#### Modules
+
+Modules are used to process the waveform signal.  These are loaded from the settings *(see below)* then the signal is passed through each in order loaded for processing.  You can then set up bindings to control module parameters using MIDI controls.
+
+#### Included Modules
+
+*None!* :p  Someone needs to read up on dsp...
+
+ - Currently a test module *mod.test* for testing MIDI control bindings.
+
+#### Requirements
 
 Requires the following packages to be installed:
 - [numpy](https://numpy.org/)
@@ -10,36 +31,34 @@ Requires the following packages to be installed:
 
 -----
 
-## Settings
+## Configuration
 
 Settings can be found in the file *settings.json*.  One will be created automatically the first time the script is ran.
 
-### Sample rate
+#### Sample rate
 You can set the sample rate here.  Defaults to 44100Hz.
 ```
 'sample_rate': 44100,
 ```
 
-### Keyboard events
+#### Keyboard events
 The MIDI note on/off messages.  Defaults to the following:
 ```
 'note_on': 144,
 'note_off': 128,
 ```
 
-### Loading modules
+#### Loading modules
 Load modules to process the signal.  The signal will be filtered through each module in order added.
 ```
-#  List modules to load
-#  Patchboard processes these in order
 'modules': [ 'mod.test' ],
 ```
 
-### MIDI control bindings
+#### MIDI control bindings
 Bind MIDI controls to modules or general settings.
+
+__Format:__ binding_name, midi_msg[0], midi_msg[1]
 ```
-#  MIDI bindings
-#  Format:  binding_name, midi[0], midi[1]
 'bindings': [
     #  Default bindings
     [ 'master_volume', 176, 29 ],
@@ -50,10 +69,9 @@ Bind MIDI controls to modules or general settings.
 ],
 ```
 
-### Saving data
+#### Saving data
 Modules will store their data values here on shutdown, then restore them on next run.
 ```
-#  For saving module data
 'module_data': []
 ```
 
@@ -63,14 +81,14 @@ Modules will store their data values here on shutdown, then restore them on next
 
 To make a module, create a Python file in the *mod* folder.  Define the module as a class, then define the following functions.
 
-- __process function__
+- __process function__ - Define what happens with the signal.
 ```
 def process(self, signal):
     #  Do something with the signal
     return signal
 ```
 
-- __save_data function__
+- __save_data function__ - Return an array of binding names and the variable they are associated with.
 ```
 def save_data(self):
     return [
@@ -79,7 +97,7 @@ def save_data(self):
     ]
 ```
 
-For each control in the module, create a seperate function to set it's value.
+For each control in the module, create a seperate function to set its value.  Then to create bindings to these controls, use the format __class_name.function_name__.
 
 ### Example mod.test.py
 ```

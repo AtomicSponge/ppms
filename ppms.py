@@ -13,9 +13,6 @@
 #
 #  See README.md for usage information.
 #
-#  Requires a MIDI input device.
-#  Virtual one should work as long as rtmidi can see the port.
-#
 ##########################################################
 
 import sys, time, json, argparse, importlib
