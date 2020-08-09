@@ -43,19 +43,19 @@ class envelope:
     def set_attack(self, val):
         self.__attack = val
 
-    ## Set attack parameter.
+    ## Set decay parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_decay(self, val):
         self.__decay = val
 
-    ## Set attack parameter.
+    ## Set sustain parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_sustain(self, val):
         self.__sustain = val
 
-    ## Set attack parameter.
+    ## Set release parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_release(self, val):
