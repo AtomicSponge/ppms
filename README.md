@@ -2,6 +2,8 @@
 
 [Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
 
+*Note:*  Still early in development, working on maths.
+
 #### Oscillators
 Generates a waveform based on the following types:
  - sawtooth
@@ -17,9 +19,7 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 
 #### Included Modules
 
-*None!* :p  Someone needs to read up on dsp...
-
- - Currently a test module *mod.test* for testing MIDI control bindings.
+ - Test module *mod.test* for testing MIDI control bindings.
 
 #### Requirements
 
