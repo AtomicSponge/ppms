@@ -9,8 +9,8 @@
 #  Filename:  ppms.py
 #  By:  Matthew Evans
 #       https://www.wtfsystems.net/
-#  See LICENSE.md for copyright information.
 #
+#  See LICENSE.md for copyright information.
 #  See README.md for usage information.
 #
 ##########################################################

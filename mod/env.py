@@ -19,10 +19,10 @@ class envelope:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        print("A:", self.__attack)
-        print("D:", self.__decay)
-        print("S:", self.__sustain)
-        print("R:", self.__release)
+        #print("A:", self.__attack)
+        #print("D:", self.__decay)
+        #print("S:", self.__sustain)
+        #print("R:", self.__release)
         return signal
 
     ##  Build an array of save data for the module.
