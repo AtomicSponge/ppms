@@ -17,7 +17,7 @@ class oscillator:
     #  @param sample_rate Rate to create sample
     def __init__(self, sample_rate):
         ##  Store the phase data
-        self.__sample_data = np.arange(sample_rate) / sample_rate
+        self.__sample_data = np.arange(sample_rate, dtype=np.float32) / sample_rate
 
     ##  Use A440 to calculate the note frequency.
     #  @param self Object pointer

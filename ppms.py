@@ -33,7 +33,7 @@ from mod.patch import patchboard
 def create_default_settings():
     return {
         'master_volume': 50,
-        'sample_rate': 44100,
+        'sample_rate': 44100.0,
         'note_on': 144,
         'note_off': 128,
 
@@ -70,7 +70,8 @@ def load_ppms_modules():
         #print(mod.__name__)
         #  Find the class name, should be the only non-private member
         for member_name in dir(mod):
-            if member_name.__contains__("__") == False:
+            #print(member_name)  #  Maybe come up with a better way than below
+            if member_name.__contains__("__") == False and member_name.__contains__("np") == False:
                 patches.add_module(locate(mod.__name__ + "." + member_name))
                 #print(mod.__name__ + "." + member_name)
 
@@ -111,41 +112,42 @@ class midi_input_handler(object):
         self._wallclock += deltatime
         print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
-        if(self.__noimpact): impact = 50
-        else: impact = message[2]
+        if(self.__noimpact): impact = 0.002
+        else: impact = message[2] / 20000
+        #print(settings['master_volume'] * impact)
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
         if message[0] == settings['note_on']:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.sawtooth(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
+            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
         if message[0] == settings['note_on'] + 1:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.triangle(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
+            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
         if message[0] == settings['note_on'] + 2:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.square(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
+            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
         if message[0] == settings['note_on'] + 3:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.sine(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.int16))
+            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({message[1]: temp_signal})
             return
 
         #  ༼つ ◕_◕ ༽つ  Stop note
         if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
             temp_signal = self.__note_map.get(message[1])
-            audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.int16))
+            audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.float32))
             del self.__note_map[message[1]]
             return
 
@@ -172,6 +174,7 @@ class midi_input_handler(object):
 ##########################################################
 #  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
 ##########################################################
+print('#' * 60)
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
 parser.add_argument("-p", "--port", dest="port", metavar="N", type=int, help="MIDI port number to connect to.")
@@ -223,7 +226,7 @@ load_ppms_modules()
 #  Index for audio output stream
 frame_index = 0
 #  The output data
-audio_signal = np.zeros(shape=(settings['sample_rate']), dtype=np.int16)
+audio_signal = np.zeros(shape=(int(settings['sample_rate'])), dtype=np.float32)
 
 #  Set MIDI callback
 midiin.set_callback(midi_input_handler(port_name, args.noimpact))
@@ -232,7 +235,7 @@ running = True
 
 #  Play sounds while running
 try:
-    with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.int16,
+    with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.float32,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
         print("PPMS loaded!  Press Control-C to exit.")
         while running:  #  Loop until Ctrl+C break
@@ -256,7 +259,7 @@ finally:
     except IOError:
         print("Error saving settings!")
     print("PPMS unloaded!")
-    print()
+    print('#' * 60)
 
 #  ( ⌐■-■)
 #  ( ⌐■-■)>⌐■-■

@@ -19,7 +19,10 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 
 #### Included Modules
 
- - Test module *mod.test* for testing MIDI control bindings.
+| File | Description |
+| ---- | ----------- |
+| __mod.test__ | Test module for testing MIDI control bindings. |
+| __mod.reverb__ | Adds reverberation effect. |
 
 #### Requirements
 
@@ -36,9 +39,9 @@ Requires the following packages to be installed:
 Settings can be found in the file *settings.json*.  One will be created automatically the first time the script is ran.
 
 #### Sample rate
-You can set the sample rate here.  Defaults to 44100Hz.
+You can set the sample rate here.  Defaults to 44100Hz.  Value is a float.
 ```
-'sample_rate': 44100,
+'sample_rate': 44100.0,
 ```
 
 #### Keyboard events
@@ -51,7 +54,7 @@ The MIDI note on/off messages.  Defaults to the following:
 #### Loading modules
 Load modules to process the signal.  The signal will be filtered through each module in order added.
 ```
-'modules': [ 'mod.test' ],
+'modules': [ 'mod.test', 'mod.another' ],
 ```
 
 #### MIDI control bindings
