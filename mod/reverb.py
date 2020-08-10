@@ -12,9 +12,10 @@ import numpy as np
 class reverberation:
     ##  Store reverb amount
     __reverb = 0
+    ##  Max reverb value
     __reverb_max = 127
 
-    ## Reverb process
+    ## Reverb process - Add a shifted array to the signal.
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data

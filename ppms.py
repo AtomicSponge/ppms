@@ -67,13 +67,12 @@ def load_ppms_modules():
     #  Take modules listed in settings and load into the patchboard
     for load_module in settings['modules']:
         mod = importlib.import_module(load_module)
-        #print(mod.__name__)
         #  Find the class name, should be the only non-private member
         for member_name in dir(mod):
             #print(member_name)  #  Maybe come up with a better way than below
             if member_name.__contains__("__") == False and member_name.__contains__("np") == False:
                 patches.add_module(locate(mod.__name__ + "." + member_name))
-                #print(mod.__name__ + "." + member_name)
+                print("Loaded: ", mod.__name__)
 
     #  Now load data for the modules
     for module_data in settings['module_data']:
@@ -88,7 +87,6 @@ def load_ppms_modules():
 ##########################################################
 def audio_callback(outdata, frames, time, status):
     global settings, audio_signal, frame_index
-    #print(frames, frame_index)
     outdata[:] = np.reshape(audio_signal[frame_index:frame_index + frames], (frames, 1))
     frame_index += frames
     if(frame_index > settings['sample_rate'] - frames): frame_index = 0
@@ -98,11 +96,12 @@ def audio_callback(outdata, frames, time, status):
 #  \START/ MIDI Input handler   ♪ヽ( ⌒o⌒)人(⌒-⌒ )v ♪
 ##########################################################
 class midi_input_handler(object):
-    def __init__(self, port, noimpact):
+    def __init__(self, port, noimpact, verbose):
         self.port = port
         self._wallclock = time.time()
         self.__note_map = dict()
         self.__noimpact = noimpact
+        self.__verbose = verbose
 
     #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
     def __call__(self, event, data=None):
@@ -110,43 +109,42 @@ class midi_input_handler(object):
 
         message, deltatime = event
         self._wallclock += deltatime
-        print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
+        if(self.__verbose): print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
 
         if(self.__noimpact): impact = 0.002
         else: impact = message[2] / 20000
-        #print(settings['master_volume'] * impact)
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
         if message[0] == settings['note_on']:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.sawtooth(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: temp_signal})
+            self.__note_map.update({message[1]: [ temp_signal, impact, "sawtooth" ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
         if message[0] == settings['note_on'] + 1:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.triangle(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: temp_signal})
+            self.__note_map.update({message[1]: [ temp_signal, impact, "triangle" ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
         if message[0] == settings['note_on'] + 2:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.square(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: temp_signal})
+            self.__note_map.update({message[1]: [ temp_signal, impact, "square" ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
         if message[0] == settings['note_on'] + 3:
             temp_signal = settings['master_volume'] * impact * patches.patch(osc.sine(message[1]))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: temp_signal})
+            self.__note_map.update({message[1]: [ temp_signal, impact, "sine" ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Stop note
         if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
-            temp_signal = self.__note_map.get(message[1])
+            temp_signal = self.__note_map.get(message[1])[0]
             audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.float32))
             del self.__note_map[message[1]]
             return
@@ -158,14 +156,31 @@ class midi_input_handler(object):
                 #  Adjust master volume
                 if(bindings[0] == "master_volume"):
                     settings['master_volume'] = message[2]
-                    return
+                    break
                 #elif
-                    #return
+                    #break
                 #  Find the loaded module and process its control
                 else:
                     mod = bindings[0].split(".", 1)
                     getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
-                    return
+                    break
+
+        #  ╚═〳 ͡ᵔ ▃ ͡ᵔ 〵═╝  Recalculate note map
+        #  After a parameter update, reprocess all playing notes
+        for note in self.__note_map:
+            data = self.__note_map.get(note)
+            audio_signal = np.subtract(audio_signal, np.array(data[0], dtype=np.float32))
+            del self.__note_map[note]
+            if(data[2] == "sawtooth"):
+                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sawtooth(note))
+            if(data[2] == "triangle"):
+                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.triangle(note))
+            if(data[2] == "square"):
+                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.square(note))
+            if(data[2] == "sine"):
+                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sine(note))
+            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
+            self.__note_map.update({note: [ temp_signal, data[1], data[2] ] })
 
 ##########################################################
 #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
@@ -174,13 +189,20 @@ class midi_input_handler(object):
 ##########################################################
 #  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
 ##########################################################
-print('#' * 60)
+print("•" * 60)
+print("Python Polyphonic MIDI Synthesizer")
+print("༼つ ◕_◕ ༽つ " * 5)
+print("•" * 60)
+print()
+
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
-parser.add_argument("-p", "--port", dest="port", metavar="N", type=int, help="MIDI port number to connect to.")
+parser.add_argument("-p", "--port", dest="port", metavar="#", type=int, help="MIDI port number to connect to.")
+parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Display MIDI messages.")
 parser.add_argument("--noimpact", dest="noimpact", action="store_true", help="Disable keyboard impact.")
 parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
 parser.set_defaults(port=None)
+parser.set_defaults(verbose=False)
 parser.set_defaults(noimpact=False)
 parser.set_defaults(defaults=False)
 args = parser.parse_args()
@@ -200,6 +222,7 @@ if(args.defaults):
 try:
     with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
+        print("Settings loaded!")
 #  Otherwise create default settings
 except IOError:
     print("Settings not found, using defaults...")
@@ -209,7 +232,6 @@ except IOError:
 if settings is None:
     print("Error creating settings!  Exiting...")
     sys.exit()
-#print(settings)
 
 #  Connect to MIDI input port.  Will prompt if not passed.
 try:
@@ -229,7 +251,7 @@ frame_index = 0
 audio_signal = np.zeros(shape=(int(settings['sample_rate'])), dtype=np.float32)
 
 #  Set MIDI callback
-midiin.set_callback(midi_input_handler(port_name, args.noimpact))
+midiin.set_callback(midi_input_handler(port_name, args.noimpact, args.verbose))
 
 running = True
 
@@ -237,14 +259,17 @@ running = True
 try:
     with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.float32,
                          blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
+        print()
         print("PPMS loaded!  Press Control-C to exit.")
         while running:  #  Loop until Ctrl+C break
             time.sleep(1)
 except Exception as e:
     print(type(e).__name__ + ': ' + str(e))
     print("Exiting...")
+    print()
 except KeyboardInterrupt:
     print("Exiting...")
+    print()
 finally:
     #  Clean up
     midiin.close_port()
@@ -259,7 +284,7 @@ finally:
     except IOError:
         print("Error saving settings!")
     print("PPMS unloaded!")
-    print('#' * 60)
+    print("•" * 60)
 
 #  ( ⌐■-■)
 #  ( ⌐■-■)>⌐■-■
