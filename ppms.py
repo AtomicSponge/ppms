@@ -231,14 +231,14 @@ except IOError:
 #  Make sure settings were created
 if settings is None:
     print("Error creating settings!  Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 #  Connect to MIDI input port.  Will prompt if not passed.
 try:
     midiin, port_name = open_midiinput(args.port)
 except (EOFError, KeyboardInterrupt):
     print("Error opening MIDI port!  Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 #  Initialize synth objects
 osc = oscillator(settings['sample_rate'])
