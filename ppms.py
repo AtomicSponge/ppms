@@ -15,8 +15,7 @@
 #
 ##########################################################
 
-import sys, time, json, argparse, importlib
-from pydoc import locate
+import sys, time, json, argparse, importlib, inspect
 
 import numpy as np
 import sounddevice as sd
@@ -67,11 +66,10 @@ def load_ppms_modules():
     #  Take modules listed in settings and load into the patchboard
     for load_module in settings['modules']:
         mod = importlib.import_module(load_module)
-        #  Find the class name, should be the only non-private member
-        for member_name in dir(mod):
-            #print(member_name)  #  Maybe come up with a better way than below
-            if member_name.__contains__("__") == False and member_name.__contains__("np") == False:
-                patches.add_module(locate(mod.__name__ + "." + member_name))
+        #  Find the class and add to patches
+        for member_name, obj in inspect.getmembers(mod):
+            if inspect.isclass(obj):
+                patches.add_module(obj)
                 print("Loaded: ", mod.__name__)
 
     #  Now load data for the modules
