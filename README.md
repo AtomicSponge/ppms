@@ -51,6 +51,12 @@ The MIDI note on/off messages.  Defaults to the following:
 'note_off': 128,
 ```
 
+#### Impact weight
+Set the impact weight.  This is used for factoring keyboard velocity.
+```
+'impact_weight': 20000,
+```
+
 #### Loading modules
 Load modules to process the signal.  The signal will be filtered through each module in order added.
 ```

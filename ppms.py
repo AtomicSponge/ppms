@@ -35,6 +35,7 @@ def create_default_settings():
         'sample_rate': 44100.0,
         'note_on': 144,
         'note_off': 128,
+        'impact_weight': 20000,
 
         #  List modules to load
         #  Patchboard processes these in order
@@ -197,12 +198,26 @@ print()
 
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
-parser.add_argument("-p", "--port", dest="port", default=None, metavar="#", type=int, help="MIDI port number to connect to.")
-parser.add_argument("-w", "--weight", dest="weight", default=20000, metavar="#", type=int, help="Weight for impact.  Default:  %(default)s")
-parser.add_argument("-v", "--verbose", dest="verbose", default=False, action="store_true", help="Display MIDI messages.")
-parser.add_argument("--noimpact", dest="noimpact", default=False, action="store_true", help="Disable keyboard impact.")
-parser.add_argument("--noupdate", dest="noupdate", default=False, action="store_true", help="Disable note reprocessing after parameter update.")
-parser.add_argument("--defaults", dest="set_defaults", default=False, action="store_true", help="Generate default settings.json file and exit.")
+parser.add_argument(
+    "-p", "--port", dest="port", default=None,
+    metavar="#", type=int, help="MIDI port number to connect to."
+)
+parser.add_argument(
+    "-v", "--verbose", dest="verbose", default=False,
+    action="store_true", help="Display MIDI messages."
+)
+parser.add_argument(
+    "--noimpact", dest="noimpact", default=False,
+    action="store_true", help="Disable keyboard impact."
+)
+parser.add_argument(
+    "--noupdate", dest="noupdate", default=False,
+    action="store_true", help="Disable note reprocessing after parameter update."
+)
+parser.add_argument(
+    "--defaults", dest="set_defaults", default=False,
+    action="store_true", help="Generate default settings.json file and exit."
+)
 args = parser.parse_args()
 
 #  If --defaults was passed, create default settings.json file then exit.
@@ -212,9 +227,10 @@ if(args.set_defaults):
         with open("settings.json", "w") as json_file:
             json.dump(settings, json_file, indent=4)
             print("Default settings.json created.  Exiting...")
+            sys.exit(0)
     except IOError:
         print("Error creating settings.json!  Exiting...")
-    sys.exit(0)
+        sys.exit(1)
 
 #  Try loading settings
 try:
@@ -249,14 +265,19 @@ frame_index = 0
 audio_signal = np.zeros(shape=(int(settings['sample_rate'])), dtype=np.float32)
 
 #  Set MIDI callback
-midiin.set_callback(midi_input_handler(port_name, args.weight, args.noimpact, args.noupdate, args.verbose))
+midiin.set_callback(
+    midi_input_handler(port_name, settings['impact_weight'],
+        args.noimpact, args.noupdate, args.verbose)
+)
 
 running = True
 
 #  Play sounds while running
 try:
-    with sd.OutputStream(callback=audio_callback, channels=1, dtype=np.float32,
-                         blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']):
+    with sd.OutputStream(
+        callback=audio_callback, channels=1, dtype=np.float32,
+        blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']
+    ):
         print()
         print("PPMS loaded!  Press Control-C to exit.")
         while running:  #  Loop until Ctrl+C break
