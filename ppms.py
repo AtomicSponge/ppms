@@ -96,11 +96,13 @@ def audio_callback(outdata, frames, time, status):
 #  \START/ MIDI Input handler   ♪ヽ( ⌒o⌒)人(⌒-⌒ )v ♪
 ##########################################################
 class midi_input_handler(object):
-    def __init__(self, port, noimpact, verbose):
-        self.port = port
-        self._wallclock = time.time()
+    def __init__(self, port, weight, noimpact, noupdate, verbose):
+        self.__port = port
+        self.__wallclock = time.time()
         self.__note_map = dict()
+        self.__weight = weight
         self.__noimpact = noimpact
+        self.__noupdate = noupdate
         self.__verbose = verbose
 
     #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
@@ -108,11 +110,11 @@ class midi_input_handler(object):
         global settings, audio_signal, osc, patches
 
         message, deltatime = event
-        self._wallclock += deltatime
-        if(self.__verbose): print("[%s] @%0.6f %r" % (self.port, self._wallclock, message))
+        self.__wallclock += deltatime
+        if(self.__verbose): print("[%s] @%0.6f %r" % (self.__port, self.__wallclock, message))
 
         if(self.__noimpact): impact = 0.002
-        else: impact = message[2] / 20000
+        else: impact = message[2] / self.__weight
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
         if message[0] == settings['note_on']:
@@ -165,6 +167,7 @@ class midi_input_handler(object):
                     getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
                     break
 
+        if(self.__noupdate): return
         #  ╚═〳 ͡ᵔ ▃ ͡ᵔ 〵═╝  Recalculate note map
         #  After a parameter update, reprocess all playing notes
         for note in self.__note_map:
@@ -198,12 +201,15 @@ print()
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
 parser.add_argument("-p", "--port", dest="port", metavar="#", type=int, help="MIDI port number to connect to.")
+parser.add_argument("-w", "--weight", dest="weight", default=20000, metavar="#", type=int, help="Weight for impact.  Default:  %(default)s")
 parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Display MIDI messages.")
 parser.add_argument("--noimpact", dest="noimpact", action="store_true", help="Disable keyboard impact.")
+parser.add_argument("--noupdate", dest="noupdate", action="store_true", help="Disable note reprocessing after parameter update.")
 parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
 parser.set_defaults(port=None)
 parser.set_defaults(verbose=False)
 parser.set_defaults(noimpact=False)
+parser.set_defaults(noupdate=False)
 parser.set_defaults(defaults=False)
 args = parser.parse_args()
 
@@ -251,7 +257,7 @@ frame_index = 0
 audio_signal = np.zeros(shape=(int(settings['sample_rate'])), dtype=np.float32)
 
 #  Set MIDI callback
-midiin.set_callback(midi_input_handler(port_name, args.noimpact, args.verbose))
+midiin.set_callback(midi_input_handler(port_name, args.weight, args.noimpact, args.noupdate, args.verbose))
 
 running = True
 

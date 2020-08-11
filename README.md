@@ -21,7 +21,7 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 
 | File | Description |
 | ---- | ----------- |
-| __mod.test__ | Test module for testing MIDI control bindings. |
+| __mod.test__ | For testing MIDI control bindings. |
 | __mod.reverb__ | Adds reverberation effect. |
 
 #### Requirements
