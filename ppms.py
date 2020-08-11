@@ -205,16 +205,16 @@ parser.add_argument("-w", "--weight", dest="weight", default=20000, metavar="#",
 parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Display MIDI messages.")
 parser.add_argument("--noimpact", dest="noimpact", action="store_true", help="Disable keyboard impact.")
 parser.add_argument("--noupdate", dest="noupdate", action="store_true", help="Disable note reprocessing after parameter update.")
-parser.add_argument("--defaults", dest="defaults", action="store_true", help="Generate default settings.json file and exit.")
+parser.add_argument("--defaults", dest="set_defaults", action="store_true", help="Generate default settings.json file and exit.")
 parser.set_defaults(port=None)
 parser.set_defaults(verbose=False)
 parser.set_defaults(noimpact=False)
 parser.set_defaults(noupdate=False)
-parser.set_defaults(defaults=False)
+parser.set_defaults(set_defaults=False)
 args = parser.parse_args()
 
 #  If --defaults was passed, create default settings.json file then exit.
-if(args.defaults):
+if(args.set_defaults):
     settings = create_default_settings()
     try:
         with open("settings.json", "w") as json_file:
