@@ -112,7 +112,7 @@ class midi_input_handler(object):
         self.__wallclock += deltatime
         if(self.__verbose): print("[%s] @%0.6f %r" % (self.__port, self.__wallclock, message))
 
-        if(self.__noimpact): impact = 0.002
+        if(self.__noimpact): impact = 40 / self.__weight
         else: impact = message[2] / self.__weight
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
