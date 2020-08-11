@@ -200,17 +200,12 @@ print()
 
 #  Parse arguments
 parser = argparse.ArgumentParser(description="Play some notes.")
-parser.add_argument("-p", "--port", dest="port", metavar="#", type=int, help="MIDI port number to connect to.")
+parser.add_argument("-p", "--port", dest="port", default=None, metavar="#", type=int, help="MIDI port number to connect to.")
 parser.add_argument("-w", "--weight", dest="weight", default=20000, metavar="#", type=int, help="Weight for impact.  Default:  %(default)s")
-parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Display MIDI messages.")
-parser.add_argument("--noimpact", dest="noimpact", action="store_true", help="Disable keyboard impact.")
-parser.add_argument("--noupdate", dest="noupdate", action="store_true", help="Disable note reprocessing after parameter update.")
-parser.add_argument("--defaults", dest="set_defaults", action="store_true", help="Generate default settings.json file and exit.")
-parser.set_defaults(port=None)
-parser.set_defaults(verbose=False)
-parser.set_defaults(noimpact=False)
-parser.set_defaults(noupdate=False)
-parser.set_defaults(set_defaults=False)
+parser.add_argument("-v", "--verbose", dest="verbose", default=False, action="store_true", help="Display MIDI messages.")
+parser.add_argument("--noimpact", dest="noimpact", default=False, action="store_true", help="Disable keyboard impact.")
+parser.add_argument("--noupdate", dest="noupdate", default=False, action="store_true", help="Disable note reprocessing after parameter update.")
+parser.add_argument("--defaults", dest="set_defaults", default=False, action="store_true", help="Generate default settings.json file and exit.")
 args = parser.parse_args()
 
 #  If --defaults was passed, create default settings.json file then exit.
