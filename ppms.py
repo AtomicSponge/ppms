@@ -184,7 +184,6 @@ class midi_input_handler(object):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sine(note))
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({note: [ temp_signal, data[1], data[2] ] })
-
 ##########################################################
 #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
 ##########################################################
