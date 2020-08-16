@@ -254,7 +254,11 @@ if settings is None:
 #  Connect to MIDI input port.  Will prompt if not passed.
 try:
     midiin, port_name = open_midiinput(args.port)
-except (EOFError, KeyboardInterrupt):
+except KeyboardInterrupt:
+    print("Exiting...")
+    print()
+    sys.exit(0)
+except EOFError:
     print("Error opening MIDI port!  Exiting...")
     sys.exit(1)
 
