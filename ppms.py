@@ -33,16 +33,18 @@ def create_default_settings():
     return {
         'master_volume': 50,
         'sample_rate': 44100.0,
+        'impact_weight': 20000,
+
+        #  Key bindings
         'note_on': 144,
         'note_off': 128,
         'preset': 192,
-        'impact_weight': 20000,
 
         #  List modules to load
         #  Patchboard processes these in order
         'modules': [ 'mod.test' ],
 
-        #  MIDI bindings
+        #  MIDI control bindings
         #  Format:  binding_name, midi[0], midi[1]
         'bindings': [
             #  Default bindings
@@ -51,6 +53,11 @@ def create_default_settings():
             #  Module bindings
             #  Binding names should have the format class_name.member_name
             [ 'test_module.set_a_value', 176, 118 ]
+        ],
+
+        #  Preset files
+        'presets': [
+            #
         ],
 
         #  For saving module data
@@ -151,8 +158,9 @@ class midi_input_handler(object):
             del self.__note_map[message[1]]
             return
 
-        #  Load a preset
+        #  ᕕ( ᐛ )ᕗ  Load a preset
         if message[0] == settings['preset']:
+            #load_ppms_modules()
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings
