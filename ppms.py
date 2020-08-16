@@ -207,6 +207,10 @@ parser.add_argument(
     action="store_true", help="Display MIDI messages."
 )
 parser.add_argument(
+    "-c", "--config", dest="config", default="settings.json",
+    metavar="file", type=str, help="Config file to load. Default: %(default)s"
+)
+parser.add_argument(
     "--noimpact", dest="noimpact", default=False,
     action="store_true", help="Disable keyboard impact."
 )
@@ -234,7 +238,7 @@ if(args.set_defaults):
 
 #  Try loading settings
 try:
-    with open("settings.json", "r") as json_file:
+    with open(args.config, "r") as json_file:
         settings = json.load(json_file)
         print("Settings loaded!")
 #  Otherwise create default settings
@@ -297,7 +301,7 @@ finally:
     try:
         #  First update the module save data
         settings['module_data'] = patches.save_data()
-        with open("settings.json", "w") as json_file:
+        with open(args.config, "w") as json_file:
             json.dump(settings, json_file, indent=4)
             print("Settings saved!")
     except IOError:
