@@ -34,6 +34,7 @@ def create_default_settings():
         'master_volume': 50,
         'sample_rate': 44100.0,
         'impact_weight': 20000,
+        'preset_folder': "presets",
 
         #  Key bindings
         'note_on': 144,
@@ -55,10 +56,8 @@ def create_default_settings():
             [ 'test_module.set_a_value', 176, 118 ]
         ],
 
-        #  Preset files
-        'presets': [
-            #
-        ],
+        #  For storing preset files
+        'presets': [],
 
         #  For saving module data
         'module_data': []
@@ -80,13 +79,18 @@ def load_ppms_modules():
             if inspect.isclass(obj):
                 patches.add_module(obj)
                 print("Loaded: ", mod.__name__)
+    print("Modules loaded!")
+##########################################################
 
-    #  Now load data for the modules
+##########################################################
+#  Function to load module data
+##########################################################
+def load_module_data():
+    global settings, patches
+
     for module_data in settings['module_data']:
         mod = module_data[0].split(".", 1)
         getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
-
-    print("Modules loaded!")
 ##########################################################
 
 ##########################################################
@@ -161,7 +165,18 @@ class midi_input_handler(object):
         #  ᕕ( ᐛ )ᕗ  Load a preset
         if message[0] == settings['preset']:
             if message[1] < len(settings['presets']):
-                print(settings['presets'][message[1]])
+                #print(settings['preset_folder'] + "/" + settings['presets'][message[1]])
+                #  Try loading preset
+                try:
+                    with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
+                        settings['module_data'] = json.load(json_file)
+                #  If not found just return
+                except IOError:
+                    print("Error loading preset")
+                    return
+                #  Now make the preset active
+                load_module_data()
+                #print("Preset {} loaded")
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings
@@ -189,12 +204,13 @@ class midi_input_handler(object):
             del self.__note_map[note]
             if(data[2] == "sawtooth"):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sawtooth(note))
-            if(data[2] == "triangle"):
+            elif(data[2] == "triangle"):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.triangle(note))
-            if(data[2] == "square"):
+            elif(data[2] == "square"):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.square(note))
-            if(data[2] == "sine"):
+            elif(data[2] == "sine"):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sine(note))
+            else: continue  #  Not valid, don't update note map
             audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
             self.__note_map.update({note: [ temp_signal, data[1], data[2] ] })
 ##########################################################
@@ -280,6 +296,9 @@ except EOFError:
 osc = oscillator(settings['sample_rate'])
 patches = patchboard()
 load_ppms_modules()
+load_module_data()
+
+#  Load presets
 
 #  Index for audio output stream
 frame_index = 0
