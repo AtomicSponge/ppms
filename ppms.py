@@ -35,6 +35,7 @@ def create_default_settings():
         'sample_rate': 44100.0,
         'note_on': 144,
         'note_off': 128,
+        'preset': 192,
         'impact_weight': 20000,
 
         #  List modules to load
@@ -148,6 +149,10 @@ class midi_input_handler(object):
             temp_signal = self.__note_map.get(message[1])[0]
             audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.float32))
             del self.__note_map[message[1]]
+            return
+
+        #  Load a preset
+        if message[0] == settings['preset']:
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings
