@@ -160,7 +160,8 @@ class midi_input_handler(object):
 
         #  ᕕ( ᐛ )ᕗ  Load a preset
         if message[0] == settings['preset']:
-            #load_ppms_modules()
+            if message[1] < len(settings['presets']):
+                print(settings['presets'][message[1]])
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings
