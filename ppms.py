@@ -49,11 +49,11 @@ def create_default_settings():
         #  Format:  binding_name, midi[0], midi[1]
         'bindings': [
             #  Default bindings
-            [ 'master_volume', 176, 29 ],
+            [ 'master_volume', 176, 24 ],
 
             #  Module bindings
             #  Binding names should have the format class_name.member_name
-            [ 'test_module.set_a_value', 176, 118 ]
+            [ 'test_module.set_a_value', 176, 20 ]
         ],
 
         #  For storing preset files
@@ -165,18 +165,17 @@ class midi_input_handler(object):
         #  ᕕ( ᐛ )ᕗ  Load a preset
         if message[0] == settings['preset']:
             if message[1] < len(settings['presets']):
-                #print(settings['preset_folder'] + "/" + settings['presets'][message[1]])
                 #  Try loading preset
                 try:
                     with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
                         settings['module_data'] = json.load(json_file)
                 #  If not found just return
                 except IOError:
-                    print("Error loading preset")
+                    print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
                     return
                 #  Now make the preset active
                 load_module_data()
-                #print("Preset {} loaded")
+                print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings
@@ -202,6 +201,7 @@ class midi_input_handler(object):
             data = self.__note_map.get(note)
             audio_signal = np.subtract(audio_signal, np.array(data[0], dtype=np.float32))
             del self.__note_map[note]
+            #  Re-create the note with the new parameters
             if(data[2] == "sawtooth"):
                 temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sawtooth(note))
             elif(data[2] == "triangle"):
@@ -297,8 +297,6 @@ osc = oscillator(settings['sample_rate'])
 patches = patchboard()
 load_ppms_modules()
 load_module_data()
-
-#  Load presets
 
 #  Index for audio output stream
 frame_index = 0

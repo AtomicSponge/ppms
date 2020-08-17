@@ -17,6 +17,7 @@ class band_pass:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
+        #print(self.__high_pass)
         return signal
 
     ##  Build an array of save data for the module.
