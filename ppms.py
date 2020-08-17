@@ -39,7 +39,7 @@ def create_default_settings():
         #  Key bindings
         'note_on': 144,
         'note_off': 128,
-        'preset': 192,
+        'preset_msg': 192,
 
         #  List modules to load
         #  Patchboard processes these in order
@@ -163,19 +163,16 @@ class midi_input_handler(object):
             return
 
         #  ᕕ( ᐛ )ᕗ  Load a preset
-        if message[0] == settings['preset']:
+        if message[0] == settings['preset_msg']:
             if message[1] < len(settings['presets']):
-                #  Try loading preset
                 try:
+                    #  Open the preset file and load into modue_data
                     with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
                         settings['module_data'] = json.load(json_file)
-                #  If not found just return
+                        load_module_data()
+                        print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
                 except IOError:
                     print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
-                    return
-                #  Now make the preset active
-                load_module_data()
-                print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
             return
 
         #  (☞ﾟヮﾟ)☞  Check bindings

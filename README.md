@@ -53,7 +53,7 @@ The MIDI note on/off messages.  Defaults to the following:
 
 The preset message:
 ```
-"preset": 192,
+"preset_msg": 192,
 ```
 
 #### Impact weight
@@ -159,3 +159,15 @@ class test_module:
 -----
 
 ## Presets
+
+```
+[
+    [ "envelope.set_attack", 100 ],
+    [ "envelope.set_decay", 27 ],
+    [ "envelope.set_sustain", 46 ],
+    [ "envelope.set_release", 90 ],
+    [ "band_pass.set_high_pass", 12 ],
+    [ "band_pass.set_low_pass", 42 ],
+    [ "reverberation.set_reverb", 38 ]
+]
+```
