@@ -51,10 +51,21 @@ The MIDI note on/off messages.  Defaults to the following:
 'note_off': 128,
 ```
 
+The preset message:
+```
+"preset": 192,
+```
+
 #### Impact weight
 Set the impact weight.  This is used for factoring keyboard velocity.
 ```
 'impact_weight': 20000,
+```
+
+#### Preset directory
+Folder to load preset files from.
+```
+'preset_folder': "presets",
 ```
 
 #### Loading modules
@@ -76,6 +87,12 @@ __Format:__ binding_name, midi_msg[0], midi_msg[1]
     #  Binding names should have the format class_name.member_name
     [ 'test_module.set_a_value', 176, 118 ]
 ],
+```
+
+#### Loading presets
+List preset files in order here.  These files must be located in the folder as indicated by the __preset_folder__ setting.
+```
+'presets': [ "example1.json", "example2.json" ],
 ```
 
 #### Saving data
@@ -138,3 +155,7 @@ class test_module:
     def set_a_value(self, val):
         self.__test_value = val
 ```
+
+-----
+
+## Presets
