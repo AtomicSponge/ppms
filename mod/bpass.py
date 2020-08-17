@@ -22,24 +22,19 @@ class band_pass:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        #print(np.amin(signal))
-        #print(np.amax(signal))
-
         #  Do low pass
         if self.__low_pass > 0:
             amnt = self.__low_pass / self.__pass_max
-            filter_amnt = np.amin(signal) - (np.amin(signal) * amnt)
-            #print(filter_amnt)
-            for x in np.nditer(np.where(signal < filter_amnt)):
-                signal[x] = filter_amnt
+            filter_amnt = np.amax(signal) - (np.amax(signal) * amnt)
+            for x in np.nditer(np.where(signal > filter_amnt)):
+                signal[x] = 0
 
         #  Do high pass
         if self.__high_pass > 0:
             amnt = self.__high_pass / self.__pass_max
-            filter_amnt = np.amax(signal) - (np.amax(signal) * amnt)
-            #print(filter_amnt)
-            for x in np.nditer(np.where(signal > filter_amnt)):
-                signal[x] = filter_amnt
+            filter_amnt = np.amin(signal) - (np.amin(signal) * amnt)
+            for x in np.nditer(np.where(signal < filter_amnt)):
+                signal[x] = 0
 
         return signal
 
