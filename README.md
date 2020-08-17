@@ -23,7 +23,7 @@ You can select which waveform is generated using MIDI program change.
 
 #### Modules
 
-Modules are used to process the waveform signal.  These are loaded from the settings *(see below)* then the signal is passed through each in order loaded for processing.  You can then set up bindings to control module parameters using MIDI controls.
+Modules are used to process the waveform signal.  These are loaded from the settings (*see below*) then the signal is passed through each in the order they were loaded.  You can then set up bindings to control module parameters using MIDI controls.
 
 #### Included Modules
 
@@ -31,6 +31,7 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 | ---- | ----------- |
 | __mod.test__ | For testing MIDI control bindings. |
 | __mod.reverb__ | Adds reverberation effect. |
+| __mod.bpass__ | Provides a high-pass and low-pass filter |
 
 -----
 
