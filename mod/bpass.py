@@ -6,18 +6,41 @@
 #  See LICENSE.md for copyright information.
 #
 
-##  Band-pass filter.
-class band_pass:
-    ##  Store test_value
-    __high_pass = 0
-    __low_pass = 0
+import numpy as np
 
-    ## Test process, simply print the test_value.
+##  Band-pass filter.  WIP
+class band_pass:
+    ##  Store high pass amount
+    __high_pass = 0
+    ##  Store low pass amount
+    __low_pass = 0
+    ##  Store filter max value
+    __pass_max = 127
+
+    ## Process low pass and high pass filters
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        #print(self.__high_pass)
+        #print(np.amin(signal))
+        #print(np.amax(signal))
+
+        #  Do low pass
+        if self.__low_pass > 0:
+            amnt = self.__low_pass / self.__pass_max
+            filter_amnt = np.amin(signal) - (np.amin(signal) * amnt)
+            #print(filter_amnt)
+            for x in np.nditer(np.where(signal < filter_amnt)):
+                signal[x] = filter_amnt
+
+        #  Do high pass
+        if self.__high_pass > 0:
+            amnt = self.__high_pass / self.__pass_max
+            filter_amnt = np.amax(signal) - (np.amax(signal) * amnt)
+            #print(filter_amnt)
+            for x in np.nditer(np.where(signal > filter_amnt)):
+                signal[x] = filter_amnt
+
         return signal
 
     ##  Build an array of save data for the module.
@@ -26,17 +49,17 @@ class band_pass:
     #  @return Module data to save
     def save_data(self):
         return [
-            [ 'band_pass.set_high_pass', self.__high_pass ],
-            [ 'band_pass.set_low_pass', self.__low_pass ]
+            [ 'band_pass.set_low_pass', self.__low_pass ],
+            [ 'band_pass.set_high_pass', self.__high_pass ]
         ]
 
-    ## Set test value.
+    ## Set high pass value.
     #  @param self Object pointer
     #  @param val New value to set
     def set_high_pass(self, val):
         self.__high_pass = val
 
-## Set test value.
+    ## Set low pass value.
     #  @param self Object pointer
     #  @param val New value to set
     def set_low_pass(self, val):
