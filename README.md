@@ -2,8 +2,6 @@
 
 [Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
 
-*Note:*  Still early in development, working on maths.
-
 #### Requirements
 
 Requires the following packages to be installed:
