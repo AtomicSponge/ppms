@@ -1,6 +1,6 @@
 ## Python Polyphonic MIDI Synthesizer
 
-[Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device.  Generates samples based on waveforms and processes them through modules.  Allows control of the modules through MIDI messages.
+[Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
 
 *Note:*  Still early in development, working on maths.
 
@@ -14,10 +14,10 @@ Requires the following packages to be installed:
 
 #### Oscillators
 Generates a waveform based on the following types:
- - sawtooth
- - triangle
- - square
- - sine
+ - sawtooth /|
+ - triangle /\
+ - square |_|
+ - sine ~
 
 You can select which waveform is generated using MIDI program change.
 
@@ -31,7 +31,7 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 | ---- | ----------- |
 | __mod.test__ | For testing MIDI control bindings. |
 | __mod.reverb__ | Adds reverberation effect. |
-| __mod.bpass__ | Provides a high-pass and low-pass filter |
+| __mod.bpass__ | Provides a high-pass and low-pass filter. |
 
 -----
 
@@ -52,7 +52,7 @@ The MIDI note on/off messages.  Defaults to the following:
 'note_off': 128,
 ```
 
-The preset message:
+The load preset message is defined as:
 ```
 "preset_msg": 192,
 ```
@@ -161,6 +161,11 @@ class test_module:
 
 ## Presets
 
+Preset files are used to store module parameters and can be loaded during runtime.  When the MIDI message to load a preset is received, it selects the corresponding preset file and sets the active parameters.
+
+For setting the preset folder and MIDI message, see __Configuration__ above.
+
+### Example preset.json
 ```
 [
     [ "envelope.set_attack", 100 ],
