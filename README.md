@@ -4,6 +4,14 @@
 
 *Note:*  Still early in development, working on maths.
 
+#### Requirements
+
+Requires the following packages to be installed:
+- [numpy](https://numpy.org/)
+- [scipy](https://www.scipy.org/)
+- [sounddevice](https://pypi.org/project/sounddevice/)
+- [rtmidi](https://pypi.org/project/python-rtmidi/)
+
 #### Oscillators
 Generates a waveform based on the following types:
  - sawtooth
@@ -23,14 +31,6 @@ Modules are used to process the waveform signal.  These are loaded from the sett
 | ---- | ----------- |
 | __mod.test__ | For testing MIDI control bindings. |
 | __mod.reverb__ | Adds reverberation effect. |
-
-#### Requirements
-
-Requires the following packages to be installed:
-- [numpy](https://numpy.org/)
-- [scipy](https://www.scipy.org/)
-- [sounddevice](https://pypi.org/project/sounddevice/)
-- [rtmidi](https://pypi.org/project/python-rtmidi/)
 
 -----
 
