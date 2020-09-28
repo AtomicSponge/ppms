@@ -15,7 +15,8 @@
 #
 ##########################################################
 
-import sys, time, json, argparse, importlib, inspect
+import sys, time, json, asyncio
+import argparse, importlib, inspect
 
 import numpy as np
 import sounddevice as sd
@@ -97,28 +98,38 @@ def load_module_data():
 #  Audio callback function
 ##########################################################
 def audio_callback(outdata, frames, time, status):
-    global settings, audio_signal, frame_index
-    outdata[:] = np.reshape(audio_signal[frame_index:frame_index + frames], (frames, 1))
-    frame_index += frames
-    if(frame_index > settings['sample_rate'] - frames): frame_index = 0
+    global time_index, settings, note_map, osc, patches
+
+    audio_signal = np.zeros(shape=(frames,1), dtype=np.float32)
+    for note in note_map:
+        data = self.note_map.get(note)
+        if data[0] == "sawtooth":
+            audio_signal += settings['master_volume'] * data[1] * patches.patch(osc.sawtooth(note, time_index))
+        if data[0] == "triangle":
+            audio_signal += settings['master_volume'] * data[1] * patches.patch(osc.triangle(note, time_index))
+        if data[0] == "square":
+            audio_signal += settings['master_volume'] * data[1] * patches.patch(osc.square(note, time_index))
+        if data[0] == "sine":
+            audio_signal += settings['master_volume'] * data[1] * patches.patch(osc.sine(note, time_index))
+    outdata[:] = audio_signal
+    time_index += frames
+    if(time_index > sys.maxsize - frames - frames): time_index = 0
 ##########################################################
 
 ##########################################################
 #  \START/ MIDI Input handler   ♪ヽ( ⌒o⌒)人(⌒-⌒ )v ♪
 ##########################################################
 class midi_input_handler(object):
-    def __init__(self, port, weight, noimpact, noupdate, verbose):
+    def __init__(self, port, weight, noimpact, verbose):
         self.__port = port
         self.__weight = weight
         self.__noimpact = noimpact
-        self.__noupdate = noupdate
         self.__verbose = verbose
         self.__wallclock = time.time()
-        self.__note_map = dict()
 
     #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
     def __call__(self, event, data=None):
-        global settings, audio_signal, osc, patches
+        global settings, note_map
 
         message, deltatime = event
         self.__wallclock += deltatime
@@ -129,37 +140,27 @@ class midi_input_handler(object):
 
         #  ༼つ ◕_◕ ༽つ  Play saw note
         if message[0] == settings['note_on']:
-            temp_signal = settings['master_volume'] * impact * patches.patch(osc.sawtooth(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: [ temp_signal, impact, "sawtooth" ] })
+            note_map.update({message[1]: [ "sawtooth", impact ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play triangle note
         if message[0] == settings['note_on'] + 1:
-            temp_signal = settings['master_volume'] * impact * patches.patch(osc.triangle(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: [ temp_signal, impact, "triangle" ] })
+            note_map.update({message[1]: [ "triangle", impact ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play square note
         if message[0] == settings['note_on'] + 2:
-            temp_signal = settings['master_volume'] * impact * patches.patch(osc.square(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: [ temp_signal, impact, "square" ] })
+            note_map.update({message[1]: [ "square", impact ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Play sine note
         if message[0] == settings['note_on'] + 3:
-            temp_signal = settings['master_volume'] * impact * patches.patch(osc.sine(message[1]))
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({message[1]: [ temp_signal, impact, "sine" ] })
+            note_map.update({message[1]: [ "sine", impact ] })
             return
 
         #  ༼つ ◕_◕ ༽つ  Stop note
         if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
-            temp_signal = self.__note_map.get(message[1])[0]
-            audio_signal = np.subtract(audio_signal, np.array(temp_signal, dtype=np.float32))
-            del self.__note_map[message[1]]
+            del note_map[message[1]]
             return
 
         #  ᕕ( ᐛ )ᕗ  Load a preset
@@ -190,26 +191,6 @@ class midi_input_handler(object):
                     mod = bindings[0].split(".", 1)
                     getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
                     break
-
-        if(self.__noupdate): return
-        #  ╚═〳 ͡ᵔ ▃ ͡ᵔ 〵═╝  Recalculate note map
-        #  After a parameter update, reprocess all playing notes
-        for note in self.__note_map:
-            data = self.__note_map.get(note)
-            audio_signal = np.subtract(audio_signal, np.array(data[0], dtype=np.float32))
-            del self.__note_map[note]
-            #  Re-create the note with the new parameters
-            if(data[2] == "sawtooth"):
-                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sawtooth(note))
-            elif(data[2] == "triangle"):
-                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.triangle(note))
-            elif(data[2] == "square"):
-                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.square(note))
-            elif(data[2] == "sine"):
-                temp_signal = settings['master_volume'] * data[1] * patches.patch(osc.sine(note))
-            else: continue  #  Not valid, don't update note map
-            audio_signal = np.add(audio_signal, np.array(temp_signal, dtype=np.float32))
-            self.__note_map.update({note: [ temp_signal, data[1], data[2] ] })
 ##########################################################
 #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
 ##########################################################
@@ -218,8 +199,10 @@ class midi_input_handler(object):
 #  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
 ##########################################################
 print("•" * 60)
-print("Python Polyphonic MIDI Synthesizer")
 print("༼つ ◕_◕ ༽つ " * 5)
+print("Python Polyphonic MIDI Synthesizer")
+print("By: Matthew Evans")
+print("https://www.wtfsystems.net")
 print("•" * 60)
 print()
 
@@ -240,10 +223,6 @@ parser.add_argument(
 parser.add_argument(
     "--noimpact", dest="noimpact", default=False,
     action="store_true", help="Disable keyboard impact."
-)
-parser.add_argument(
-    "--noupdate", dest="noupdate", default=False,
-    action="store_true", help="Disable note reprocessing after parameter update."
 )
 parser.add_argument(
     "--defaults", dest="set_defaults", default=False,
@@ -290,30 +269,33 @@ except EOFError:
     sys.exit(1)
 
 #  Initialize synth objects
-osc = oscillator(settings['sample_rate'])
+osc = oscillator()
 patches = patchboard()
+note_map = dict()
+
+#  Load data
 load_ppms_modules()
 load_module_data()
 
 #  Index for audio output stream
-frame_index = 0
-#  The output data
-audio_signal = np.zeros(shape=(int(settings['sample_rate'])), dtype=np.float32)
+time_index = 0
 
 #  Set MIDI callback
 midiin.set_callback(
     midi_input_handler(port_name, settings['impact_weight'],
-        args.noimpact, args.noupdate, args.verbose)
+                       args.noimpact, args.verbose)
 )
 
 running = True
 
 #  Play sounds while running
 try:
-    with sd.OutputStream(
+    stream = sd.OutputStream(
         callback=audio_callback, channels=1, dtype=np.float32,
-        blocksize=int(settings['sample_rate'] / 30), samplerate=settings['sample_rate']
-    ):
+        samplerate=settings['sample_rate']
+    )
+    with stream:
+        osc.config(stream.blocksize, stream.samplerate)
         print()
         print("PPMS loaded!  Press Control-C to exit.")
         while running:  #  Loop until Ctrl+C break
