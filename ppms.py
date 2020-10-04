@@ -181,6 +181,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
         print("Error opening MIDI port!  Exiting...")
         sys.exit(1)
 
+    print("Connected to: ", port_name)
     midiin.set_callback(
         midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
     )
@@ -203,7 +204,7 @@ async def ppms_output(settings, osc, patches, note_map):
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         for note in note_map:
             data = note_map.get(note)
-            print(note, data[0], data[1])
+            #print(note, data[0], data[1])
             if data[0] == "sawtooth":
                 audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
             if data[0] == "triangle":
