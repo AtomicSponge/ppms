@@ -320,7 +320,7 @@ async def main(**kwargs):
         except IOError:
             print("Error saving settings.json!  Exiting...")
             sys.exit(1)
-        print("Exting...")
+        print("Exiting...")
         print()
 
 ##################################################################
