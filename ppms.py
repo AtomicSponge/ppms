@@ -111,6 +111,19 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
             self.__wallclock += deltatime
             if(self.__verbose): print("[%s] @%0.6f %r" % (self.__port, self.__wallclock, message))
 
+            #  ᕕ( ᐛ )ᕗ  Load a preset
+            if message[0] == settings['preset_msg']:
+                if message[1] < len(settings['presets']):
+                    try:
+                        #  Open the preset file and load into module_data
+                        with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
+                            settings['module_data'] = json.load(json_file)
+                            load_module_data(settings, patches)
+                            print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
+                    except IOError:
+                        print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
+                return
+
             if(self.__noimpact): impact = 40 / self.__weight
             else: impact = message[2] / self.__weight
 
@@ -137,19 +150,6 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
             #  ༼つ ◕_◕ ༽つ  Stop note
             if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
                 del note_map[message[1]]
-                return
-
-            #  ᕕ( ᐛ )ᕗ  Load a preset
-            if message[0] == settings['preset_msg']:
-                if message[1] < len(settings['presets']):
-                    try:
-                        #  Open the preset file and load into module_data
-                        with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
-                            settings['module_data'] = json.load(json_file)
-                            load_module_data(settings, patches)
-                            print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
-                    except IOError:
-                        print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
                 return
 
             #  (☞ﾟヮﾟ)☞  Check bindings
