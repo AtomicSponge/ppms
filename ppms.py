@@ -209,12 +209,10 @@ async def ppms_output(settings, patches, note_map, osc):
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map
 
-        #print(time_index, frame_size)
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         temp_note_map = note_map.copy()
         for note in temp_note_map:
             data = note_map.get(note)
-            #print(note, data[0], data[1])
             if data[0] == "sawtooth":
                 audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
             if data[0] == "triangle":
