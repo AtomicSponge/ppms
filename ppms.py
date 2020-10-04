@@ -186,6 +186,8 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     )
     await event.wait()
 
+    #  Need to del midiin
+
 ##################################################################
 #  Output coro
 ##################################################################
