@@ -185,9 +185,13 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     midiin.set_callback(
         midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
     )
-    await event.wait()
-
-    #  Need to del midiin
+    
+    try:
+        await event.wait()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        del midiin
 
 ##################################################################
 #  Output coro
@@ -306,6 +310,7 @@ async def main(**kwargs):
     await in_task
     await out_task
 
+    #  Below needs to be called
     try:
         with open("settings.json", "w") as json_file:
             json.dump(settings, json_file, indent=4)
