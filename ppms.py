@@ -289,12 +289,14 @@ async def main(**kwargs):
     load_module_data(settings, patches)
 
     in_task = asyncio.create_task(
-            ppms_input(
-                settings, patches, note_map,
-                args.port, args.noimpact, args.verbose
-            )
+        ppms_input(
+            settings, patches, note_map,
+            args.port, args.noimpact, args.verbose
+        )
     )
-    out_task = asyncio.create_task(ppms_output(settings, osc, patches, note_map))
+    out_task = asyncio.create_task(
+        ppms_output(settings, osc, patches, note_map)
+    )
 
     await in_task
     await out_task
