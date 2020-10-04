@@ -210,17 +210,17 @@ async def ppms_output(settings, patches, note_map, osc):
         nonlocal time_index, settings, osc, patches, note_map
 
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
-        temp_note_map = note_map.copy()
+        temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯
         for note in temp_note_map:
             data = note_map.get(note)
             if data[0] == "sawtooth":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
             if data[0] == "triangle":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.triangle(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.triangle(note, frame_size, time_index)))
             if data[0] == "square":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.square(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.square(note, frame_size, time_index)))
             if data[0] == "sine":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] + data[1]) * patches.patch(osc.sine(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sine(note, frame_size, time_index)))
         outdata[:] = audio_signal
         time_index += frame_size
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
@@ -266,7 +266,6 @@ async def main(**kwargs):
     )
     args = parser.parse_args()
 
-    settings = None
     #  If --defaults was passed, create default settings.json file then exit.
     if(args.set_defaults):
         settings = create_default_settings()
@@ -331,7 +330,7 @@ async def main(**kwargs):
 ##################################################################
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        asyncio.run(main(), debug=False)
     except KeyboardInterrupt:
         sys.exit(0)
 
