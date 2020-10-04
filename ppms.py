@@ -201,15 +201,16 @@ async def ppms_output(settings, osc, patches, note_map):
         for note in note_map:
             data = note_map.get(note)
             if data[0] == "sawtooth":
-                audio_signal += (settings['master_volume'] + data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index))
+                audio_signal = np.add(audio_signal, settings['master_volume'] + data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index))
             if data[0] == "triangle":
-                audio_signal += (settings['master_volume'] + data[1]) * patches.patch(osc.triangle(note, frame_size, time_index))
+                audio_signal = np.add(audio_signal, settings['master_volume'] + data[1]) * patches.patch(osc.triangle(note, frame_size, time_index))
             if data[0] == "square":
-                audio_signal += (settings['master_volume'] + data[1]) * patches.patch(osc.square(note, frame_size, time_index))
+                audio_signal = np.add(audio_signal, settings['master_volume'] + data[1]) * patches.patch(osc.square(note, frame_size, time_index))
             if data[0] == "sine":
-                audio_signal += (settings['master_volume'] + data[1]) * patches.patch(osc.sine(note, frame_size, time_index))
+                audio_signal = np.add(audio_signal, settings['master_volume'] + data[1]) * patches.patch(osc.sine(note, frame_size, time_index))
         outdata[:] = audio_signal
         time_index += frame_size
+        #print(time_index, frame_size)
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
 
     stream = sd.OutputStream(
