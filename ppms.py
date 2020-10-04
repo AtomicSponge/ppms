@@ -201,7 +201,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
 ##################################################################
 #  Output coro
 ##################################################################
-async def ppms_output(settings, osc, patches, note_map):
+async def ppms_output(settings, patches, note_map, osc):
     loop = asyncio.get_event_loop()
     event = asyncio.Event()
     time_index = 0  #  Index for audio output stream
@@ -211,7 +211,8 @@ async def ppms_output(settings, osc, patches, note_map):
 
         #print(time_index, frame_size)
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
-        for note in note_map:
+        temp_note_map = note_map.copy()
+        for note in temp_note_map:
             data = note_map.get(note)
             #print(note, data[0], data[1])
             if data[0] == "sawtooth":
@@ -267,6 +268,7 @@ async def main(**kwargs):
     )
     args = parser.parse_args()
 
+    settings = None
     #  If --defaults was passed, create default settings.json file then exit.
     if(args.set_defaults):
         settings = create_default_settings()
@@ -309,7 +311,7 @@ async def main(**kwargs):
         )
     )
     out_task = asyncio.create_task(
-        ppms_output(settings, osc, patches, note_map)
+        ppms_output(settings, patches, note_map, osc)
     )
 
     try:
@@ -321,7 +323,7 @@ async def main(**kwargs):
         try:
             with open("settings.json", "w") as json_file:
                 json.dump(settings, json_file, indent=4)
-                print("Settings saved")
+                print("Settings saved!  Exiting...")
         except IOError:
             print("Error saving settings.json!  Exiting...")
             sys.exit(1)
