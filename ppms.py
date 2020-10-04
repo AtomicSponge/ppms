@@ -305,8 +305,21 @@ async def main(**kwargs):
     await in_task
     await out_task
 
+    try:
+        with open("settings.json", "w") as json_file:
+            json.dump(settings, json_file, indent=4)
+            print("Settings saved")
+    except IOError:
+        print("Error saving settings.json!  Exiting...")
+        sys.exit(1)
+    print("Done")
+
 ##################################################################
-asyncio.run(main())
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 #  ( ⌐■-■)
 #  ( ⌐■-■)>⌐■-■
