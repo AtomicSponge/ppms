@@ -307,18 +307,21 @@ async def main(**kwargs):
         ppms_output(settings, osc, patches, note_map)
     )
 
-    await in_task
-    await out_task
-
-    #  Below needs to be called
     try:
-        with open("settings.json", "w") as json_file:
-            json.dump(settings, json_file, indent=4)
-            print("Settings saved")
-    except IOError:
-        print("Error saving settings.json!  Exiting...")
-        sys.exit(1)
-    print("Done")
+        await in_task
+        await out_task
+    except KeyboardInterrupt:
+        pass
+    finally:
+        try:
+            with open("settings.json", "w") as json_file:
+                json.dump(settings, json_file, indent=4)
+                print("Settings saved")
+        except IOError:
+            print("Error saving settings.json!  Exiting...")
+            sys.exit(1)
+        print("Exting...")
+        print()
 
 ##################################################################
 if __name__ == "__main__":
