@@ -16,7 +16,7 @@ class test_module:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        print("Test value:", self.__test_value)
+        print("Test value: ", self.__test_value)
         return signal
 
     ##  Build an array of save data for the module.

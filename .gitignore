@@ -16,7 +16,7 @@ __pycache__/
 _tests/
 
 #  Ignore presets
-presets/
+presets/*.json
 
 #  Ignore settings.json
 settings.json
