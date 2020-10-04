@@ -107,8 +107,6 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
 
         #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
         def __call__(self, event, data=None):
-            #nonlocal settings, pathces, note_map
-
             message, deltatime = event
             self.__wallclock += deltatime
             if(self.__verbose): print("[%s] @%0.6f %r" % (self.__port, self.__wallclock, message))
@@ -148,7 +146,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                         #  Open the preset file and load into module_data
                         with open(settings['preset_folder'] + "/" + settings['presets'][message[1]], "r") as json_file:
                             settings['module_data'] = json.load(json_file)
-                            load_module_data()
+                            load_module_data(settings, patches)
                             print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
                     except IOError:
                         print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])

@@ -8,7 +8,7 @@ Requires the following packages to be installed:
 - [numpy](https://numpy.org/)
 - [scipy](https://www.scipy.org/)
 - [sounddevice](https://pypi.org/project/sounddevice/)
-- [rtmidi](https://pypi.org/project/python-rtmidi/)
+- [python-rtmidi](https://pypi.org/project/python-rtmidi/)
 
 #### Oscillators
 Generates a waveform based on the following types:
