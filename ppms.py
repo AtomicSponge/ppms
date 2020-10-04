@@ -174,6 +174,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     try:
         midiin, port_name = open_midiinput(port)
     except KeyboardInterrupt:
+        print("Exiting...")
         sys.exit(0)
     except rtmidi.NoDevicesError:
         print("No MIDI devices available!  Exiting...")
@@ -189,7 +190,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     midiin.set_callback(
         midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
     )
-    
+
     try:
         await event.wait()
     except KeyboardInterrupt:
