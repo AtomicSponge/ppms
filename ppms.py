@@ -174,9 +174,13 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     try:
         midiin, port_name = open_midiinput(port)
     except KeyboardInterrupt:
-        print("Exiting...")
-        print()
         sys.exit(0)
+    except rtmidi.NoDevicesError:
+        print("No MIDI devices available!  Exiting...")
+        sys.exit(1)
+    except rtmidi.SystemError:
+        print("Error initializing RtMidi!  Exiting...")
+        sys.exit(1)
     except EOFError:
         print("Error opening MIDI port!  Exiting...")
         sys.exit(1)
@@ -320,7 +324,7 @@ async def main(**kwargs):
         except IOError:
             print("Error saving settings.json!  Exiting...")
             sys.exit(1)
-        print("Exiting...")
+        print("PPMS Unloaded.")
         print()
 
 ##################################################################
