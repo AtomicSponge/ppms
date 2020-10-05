@@ -320,6 +320,7 @@ if __name__ == "__main__":
         print("Error creating settings!  Exiting...")
         sys.exit(1)
 
+    #  If --build_presets was passed, load preset files into settings.
     if(args.build_presets):
         print("Building preset list...")
         settings['presets'] = [f for f in os.listdir("presets/") if f.endswith(".json")]
