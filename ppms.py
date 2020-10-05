@@ -212,7 +212,7 @@ async def ppms_output(settings, patches, note_map, osc):
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯
         for note in temp_note_map:
-            data = note_map.get(note)
+            data = temp_note_map.get(note)
             if data[0] == "sawtooth":
                 audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
             if data[0] == "triangle":
