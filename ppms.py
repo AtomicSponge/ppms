@@ -235,7 +235,7 @@ async def ppms_output(settings, patches, note_map, osc):
 ##################################################################
 #  Main function, starts coroutines
 ##################################################################
-async def main(port, noimpact, verbose):
+async def main(settings, port, noimpact, verbose):
     osc = oscillator(settings['sample_rate'])
     patches = patchboard()
     note_map = dict()
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         print("Done!")
 
     try:
-        asyncio.run(main(args.port, args.noimpact, args.verbose), debug=False)
+        asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=False)
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
