@@ -332,7 +332,7 @@ if __name__ == "__main__":
         sys.exit(0)
     finally:
         try:
-            with open("settings.json", "w") as json_file:
+            with open(args.config, "w") as json_file:
                 json.dump(settings, json_file, indent=4)
                 print("Settings saved!  Exiting...")
         except IOError:
