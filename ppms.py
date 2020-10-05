@@ -15,7 +15,7 @@
 #
 ##################################################################
 
-import sys, time, json, asyncio
+import os, sys, time, json, asyncio
 import argparse, importlib, inspect
 
 import numpy as np
@@ -233,9 +233,32 @@ async def ppms_output(settings, patches, note_map, osc):
         await event.wait()
 
 ##################################################################
-#  Main program                     ԅ║ ⁰ ۝ ⁰ ║┐
+#  Main function, starts coroutines
 ##################################################################
-async def main(**kwargs):
+async def main(port, noimpact, verbose):
+    osc = oscillator(settings['sample_rate'])
+    patches = patchboard()
+    note_map = dict()
+
+    #  Load data
+    load_ppms_modules(settings, patches)
+    load_module_data(settings, patches)
+
+    in_task = asyncio.create_task(
+        ppms_input(
+            settings, patches, note_map,
+            port, noimpact, verbose
+        )
+    )
+    out_task = asyncio.create_task(
+        ppms_output(settings, patches, note_map, osc)
+    )
+
+    await in_task
+    await out_task
+
+##################################################################
+if __name__ == "__main__":
     print("•" * 60)
     print("༼つ ◕_◕ ༽つ " * 5)
     print("Python Polyphonic MIDI Synthesizer")
@@ -259,6 +282,10 @@ async def main(**kwargs):
     parser.add_argument(
         "--noimpact", dest="noimpact", default=False,
         action="store_true", help="Disable keyboard impact."
+    )
+    parser.add_argument(
+        "--build_presets", dest="build_presets", default=False,
+        action="store_true", help="Detect presets."
     )
     parser.add_argument(
         "--defaults", dest="set_defaults", default=False,
@@ -293,29 +320,15 @@ async def main(**kwargs):
         print("Error creating settings!  Exiting...")
         sys.exit(1)
 
-    osc = oscillator(settings['sample_rate'])
-    patches = patchboard()
-    note_map = dict()
-
-    #  Load data
-    load_ppms_modules(settings, patches)
-    load_module_data(settings, patches)
-
-    in_task = asyncio.create_task(
-        ppms_input(
-            settings, patches, note_map,
-            args.port, args.noimpact, args.verbose
-        )
-    )
-    out_task = asyncio.create_task(
-        ppms_output(settings, patches, note_map, osc)
-    )
+    if(args.build_presets):
+        print("Building preset list...")
+        settings['presets'] = [f for f in os.listdir("presets/") if f.endswith(".json")]
+        print("Done!")
 
     try:
-        await in_task
-        await out_task
+        asyncio.run(main(args.port, args.noimpact, args.verbose), debug=False)
     except KeyboardInterrupt:
-        pass
+        sys.exit(0)
     finally:
         try:
             with open("settings.json", "w") as json_file:
@@ -326,13 +339,6 @@ async def main(**kwargs):
             sys.exit(1)
         print("PPMS Unloaded.")
         print()
-
-##################################################################
-if __name__ == "__main__":
-    try:
-        asyncio.run(main(), debug=False)
-    except KeyboardInterrupt:
-        sys.exit(0)
 
 #  ( ⌐■-■)
 #  ( ⌐■-■)>⌐■-■
