@@ -80,7 +80,7 @@ def load_ppms_modules(settings, patches):
     print("Modules loaded!")
 
 ##################################################################
-#  Function to load module data
+#  Function to load module parameter data
 ##################################################################
 def load_module_data(settings, patches):
     for module_data in settings['module_data']:
@@ -88,7 +88,7 @@ def load_module_data(settings, patches):
         getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
 
 ##################################################################
-#  Input coro
+#  Input coroutine
 ##################################################################
 async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     loop = asyncio.get_event_loop()
@@ -171,6 +171,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
     #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
     ##################################################################
 
+    #  Connect to MIDI device and start handler
     try:
         midiin, port_name = open_midiinput(port)
     except KeyboardInterrupt:
@@ -199,7 +200,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
         del midiin
 
 ##################################################################
-#  Output coro
+#  Output coroutine
 ##################################################################
 async def ppms_output(settings, patches, note_map, osc):
     loop = asyncio.get_event_loop()
