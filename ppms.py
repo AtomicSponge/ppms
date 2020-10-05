@@ -324,7 +324,7 @@ if __name__ == "__main__":
     #  If --build_presets was passed, load preset files into settings.
     if(args.build_presets):
         print("Building preset list...")
-        settings['presets'] = [f for f in os.listdir("presets/") if f.endswith(".json")]
+        settings['presets'] = [f for f in os.listdir(settings['preset_folder'] + "/") if f.endswith(".json")]
         print("Done!")
 
     try:
