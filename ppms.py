@@ -317,7 +317,7 @@ if __name__ == "__main__":
 
     #  Make sure settings were created
     if settings is None:
-        print("Error creating settings!  Exiting...")
+        print("Error loading settings!  Exiting...")
         sys.exit(1)
 
     #  If --build_presets was passed, load preset files into settings.
