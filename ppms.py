@@ -46,6 +46,9 @@ def create_default_settings():
         #  Patchboard processes these in order
         'modules': [ 'mod.test' ],
 
+        #  For storing preset files
+        'presets': [],
+
         #  MIDI control bindings
         #  Format:  binding_name, midi[0], midi[1]
         'bindings': [
@@ -56,9 +59,6 @@ def create_default_settings():
             #  Binding names should have the format class_name.member_name
             [ 'test_module.set_a_value', 176, 20 ]
         ],
-
-        #  For storing preset files
-        'presets': [],
 
         #  For saving module data
         'module_data': []
