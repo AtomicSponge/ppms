@@ -20,8 +20,8 @@ class reverberation:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        signal += np.roll(signal, int(signal.size * (self.__reverb / self.__reverb_max)))
-        #print(int(signal.size * (self.__reverb / self.__reverb_max)))
+        if self.__reverb > 0:
+            signal += np.roll(signal, int(signal.size * (self.__reverb / self.__reverb_max)))
         return signal
 
     ##  Build an array of save data for the module.

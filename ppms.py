@@ -207,6 +207,7 @@ async def ppms_output(settings, patches, note_map, osc):
     event = asyncio.Event()
     time_index = 0  #  Index for audio output stream
 
+    #  Audio callback.  Generates the waveforms based on the input.
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map
 
@@ -306,6 +307,8 @@ if __name__ == "__main__":
             print("Error creating settings.json!  Exiting...")
             sys.exit(1)
 
+    print("Starting PPMS.  Press Control-C to exit.")
+    
     #  Try loading settings
     try:
         with open(args.config, "r") as json_file:
