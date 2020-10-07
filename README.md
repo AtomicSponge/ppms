@@ -73,6 +73,14 @@ Load modules to process the signal.  The signal will be filtered through each mo
 'modules': [ 'mod.test', 'mod.another' ],
 ```
 
+#### Loading presets
+List preset files in order here.  These files must be located in the folder as indicated by the __preset_folder__ setting.
+```
+'presets': [ "example1.json", "example2.json" ],
+```
+
+Run with *--build_presets* to generate a list from the presets folder.
+
 #### MIDI control bindings
 Bind MIDI controls to modules or general settings.
 
@@ -81,17 +89,13 @@ __Format:__ binding_name, midi_msg[0], midi_msg[1]
 'bindings': [
     #  Default bindings
     [ 'master_volume', 176, 29 ],
+    [ 'pitch_wheel', 224, 0 ],
+    [ 'mod_wheel', 176, 1 ],
 
     #  Module bindings
     #  Binding names should have the format class_name.member_name
     [ 'test_module.set_a_value', 176, 118 ]
 ],
-```
-
-#### Loading presets
-List preset files in order here.  These files must be located in the folder as indicated by the __preset_folder__ setting.
-```
-'presets': [ "example1.json", "example2.json" ],
 ```
 
 #### Saving data

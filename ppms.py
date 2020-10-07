@@ -67,7 +67,7 @@ def create_default_settings():
 
         #  Variables
         'master_volume': 50,
-        'pitch_value': 0,
+        'pitch_bend': 0,
         'mod_value': 0,
     }
 
@@ -169,13 +169,11 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                         break
                     #  Check the pitch wheel
                     elif(bindings[0] == "pitch_wheel"):
-                        settings['pitch_value'] = message[2]
-                        #print("Pitch: ", settings['pitch_value'])
+                        settings['pitch_bend'] = message[2]
                         break
                     #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
-                        #print("Mod: ", settings['mod_value'])
                         break
                     #elif:
                         #break
@@ -228,18 +226,29 @@ async def ppms_output(settings, patches, note_map, osc):
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map
 
+        #  Check pitch bend
+        pitch_bend = 0
+        if settings['pitch_bend'] < 64 or settings['pitch_bend'] > 64:
+            #  Pitch down
+            if settings['pitch_bend'] < 64:
+                if settings['pitch_bend'] == 0: pitch_bend = -1.015625 / 64
+                else: pitch_bend = settings['pitch_bend'] / 64 * -1
+            #  Pitch up
+            if settings['pitch_bend'] > 64:
+                pitch_bend = settings['pitch_bend'] / 127
+
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯
         for note in temp_note_map:
             data = temp_note_map.get(note)
             if data[0] == "sawtooth":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, pitch_bend, frame_size, time_index)))
             if data[0] == "triangle":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.triangle(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.triangle(note, pitch_bend, frame_size, time_index)))
             if data[0] == "square":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.square(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.square(note, pitch_bend, frame_size, time_index)))
             if data[0] == "sine":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sine(note, frame_size, time_index)))
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sine(note, pitch_bend, frame_size, time_index)))
         outdata[:] = audio_signal
         time_index += frame_size
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
