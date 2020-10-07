@@ -288,6 +288,8 @@ async def main(settings, port, noimpact, verbose):
     await out_task
 
 ##################################################################
+#  Start program
+##################################################################
 if __name__ == "__main__":
     print("•" * 60)
     print("༼つ ◕_◕ ༽つ " * 5)
