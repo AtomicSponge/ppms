@@ -54,6 +54,8 @@ def create_default_settings():
         'bindings': [
             #  Default bindings
             [ 'master_volume', 176, 24 ],
+            [ 'pitch_wheel', 224, 0 ],
+            [ 'mod_wheel', 176, 1 ],
 
             #  Module bindings
             #  Binding names should have the format class_name.member_name
@@ -160,7 +162,13 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                     if(bindings[0] == "master_volume"):
                         settings['master_volume'] = message[2]
                         break
-                    #elif
+                    elif(bindings[0] == "pitch_wheel"):
+                        #print("pitch wheel", message[2])
+                        break
+                    elif(bindings[0] == "mod_wheel"):
+                        #print("mod wheel", message[2])
+                        break
+                    #elif:
                         #break
                     #  Find the loaded module and process its control
                     else:
@@ -238,6 +246,7 @@ async def ppms_output(settings, patches, note_map, osc):
 #  Main function, starts coroutines
 ##################################################################
 async def main(settings, port, noimpact, verbose):
+    #  Create the synth objects
     osc = oscillator(settings['sample_rate'])
     patches = patchboard()
     note_map = dict()
@@ -246,6 +255,7 @@ async def main(settings, port, noimpact, verbose):
     load_ppms_modules(settings, patches)
     load_module_data(settings, patches)
 
+    #  Create coro tasks
     in_task = asyncio.create_task(
         ppms_input(
             settings, patches, note_map,
@@ -330,11 +340,13 @@ if __name__ == "__main__":
         settings['presets'] = [f for f in os.listdir(settings['preset_folder'] + "/") if f.endswith(".json")]
         print("Done!")
 
+    #  Now run the main program
     try:
         asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=False)
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
+        #  Wrap up by saving the settings
         try:
             with open(args.config, "w") as json_file:
                 json.dump(settings, json_file, indent=4)
