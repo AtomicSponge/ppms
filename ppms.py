@@ -32,7 +32,7 @@ from mod.patch import patchboard
 ##################################################################
 def create_default_settings():
     return {
-        'master_volume': 50,
+        #  Config settings
         'sample_rate': 44100.0,
         'impact_weight': 20000,
         'preset_folder': "presets",
@@ -63,7 +63,12 @@ def create_default_settings():
         ],
 
         #  For saving module data
-        'module_data': []
+        'module_data': [],
+
+        #  Variables
+        'master_volume': 50,
+        'pitch_value': 0,
+        'mod_value': 0,
     }
 
 ##################################################################
@@ -163,10 +168,12 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                         settings['master_volume'] = message[2]
                         break
                     elif(bindings[0] == "pitch_wheel"):
-                        #print("pitch wheel", message[2])
+                        settings['pitch_value'] = message[2]
+                        #print("Pitch: ", settings['pitch_value'])
                         break
                     elif(bindings[0] == "mod_wheel"):
-                        #print("mod wheel", message[2])
+                        settings['mod_value'] = message[2]
+                        #print("Mod: ", settings['mod_value'])
                         break
                     #elif:
                         #break
