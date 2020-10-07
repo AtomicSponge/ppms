@@ -338,7 +338,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     print("Starting PPMS.  Press Control-C to exit.")
-    
+
     #  Try loading settings
     try:
         with open(args.config, "r") as json_file:
