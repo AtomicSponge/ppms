@@ -167,10 +167,12 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                     if(bindings[0] == "master_volume"):
                         settings['master_volume'] = message[2]
                         break
+                    #  Check the pitch wheel
                     elif(bindings[0] == "pitch_wheel"):
                         settings['pitch_value'] = message[2]
                         #print("Pitch: ", settings['pitch_value'])
                         break
+                    #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
                         #print("Mod: ", settings['mod_value'])
