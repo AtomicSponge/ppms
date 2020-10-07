@@ -41,8 +41,7 @@ class oscillator:
     #  @param pich_bend Calculated pitch bend amount
     #  @return The note frequency with pitch bend factored
     def __check_pitch_bend(self, note_freq, pitch_bend):
-        if pitch_bend != 0:
-            note_freq = note_freq * pitch_bend
+        if pitch_bend != 0: note_freq = note_freq * pitch_bend
         return note_freq
 
     ##  Return a sawtooth wave sample.
