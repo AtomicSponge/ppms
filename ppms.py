@@ -231,12 +231,13 @@ async def ppms_output(settings, patches, note_map, osc):
         if settings['pitch_bend'] < 64 or settings['pitch_bend'] > 64:
             #  Pitch down
             if settings['pitch_bend'] < 64:
-                if settings['pitch_bend'] == 0: pitch_bend = -0.984375 / 64
+                if settings['pitch_bend'] == 0: pitch_bend = -0.5 / 64
                 else: pitch_bend = settings['pitch_bend'] / 64 * -1
             #  Pitch up
             if settings['pitch_bend'] > 64:
                 pitch_bend = settings['pitch_bend'] / 127
 
+        #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯
         for note in temp_note_map:
@@ -253,6 +254,7 @@ async def ppms_output(settings, patches, note_map, osc):
         time_index += frame_size
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
 
+    #  Set the audio callback
     stream = sd.OutputStream(
         callback=audio_callback, channels=1, dtype=np.float32,
         samplerate=settings['sample_rate']
