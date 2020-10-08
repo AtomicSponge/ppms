@@ -231,8 +231,8 @@ async def ppms_output(settings, patches, note_map, osc):
         if settings['pitch_bend'] < 64 or settings['pitch_bend'] > 64:
             #  Pitch down
             if settings['pitch_bend'] < 64:
-                if settings['pitch_bend'] == 0: pitch_bend = -0.5 / 64
-                else: pitch_bend = settings['pitch_bend'] / 64 * -1
+                if settings['pitch_bend'] == 0: pitch_bend = 0.5 / -64
+                else: pitch_bend = settings['pitch_bend'] / -64
             #  Pitch up
             if settings['pitch_bend'] > 64:
                 pitch_bend = settings['pitch_bend'] / 127
