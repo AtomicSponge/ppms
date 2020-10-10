@@ -29,7 +29,7 @@ You can select which waveform is generated using MIDI program change.
 
 Modules are used to process the waveform signal.  These are loaded from the settings (*see below*) then the signal is passed through each in the order they were loaded.  You can then set up bindings to control module parameters using MIDI controls.
 
-### Included Modules
+#### Included Modules
 
 | File | Description |
 | ---- | ----------- |
