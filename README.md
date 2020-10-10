@@ -4,9 +4,11 @@
  - Speaker warning
  - Experimental, WIP, math
 
+## About
+
 [Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
 
-#### Requirements
+### Requirements
 
 Requires the following packages to be installed:
 - [numpy](https://numpy.org/)
@@ -14,7 +16,7 @@ Requires the following packages to be installed:
 - [sounddevice](https://pypi.org/project/sounddevice/)
 - [python-rtmidi](https://pypi.org/project/python-rtmidi/)
 
-#### Oscillators
+### Oscillators
 Generates a waveform based on the following types:
  - sawtooth /|
  - triangle /\
@@ -23,11 +25,11 @@ Generates a waveform based on the following types:
 
 You can select which waveform is generated using MIDI program change.
 
-#### Modules
+### Modules
 
 Modules are used to process the waveform signal.  These are loaded from the settings (*see below*) then the signal is passed through each in the order they were loaded.  You can then set up bindings to control module parameters using MIDI controls.
 
-#### Included Modules
+### Included Modules
 
 | File | Description |
 | ---- | ----------- |
