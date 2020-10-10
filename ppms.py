@@ -34,7 +34,7 @@ def create_default_settings():
     return {
         #  Config settings
         'sample_rate': 44100.0,
-        'impact_weight': 20000,
+        'impact_weight': 10000,
         'preset_folder': "presets",
 
         #  Key bindings
@@ -131,8 +131,8 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
                         print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
                 return
 
-            if(self.__noimpact): impact = 40 / self.__weight
-            else: impact = message[2] / self.__weight
+            if(self.__noimpact): impact = 80 / self.__weight
+            else: impact = message[2] * 3 / self.__weight
 
             #  ༼つ ◕_◕ ༽つ  Play saw note
             if message[0] == settings['note_on']:
