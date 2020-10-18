@@ -29,6 +29,12 @@ class envelope:
             print("R:", self.__release)
         return signal
 
+    ## Process gate signal
+    #  @param self Object pointer
+    #  @param signal Gate signal
+    def gate_signal(self, signal):
+        print(signal)
+
     ##  Build an array of save data for the module.
     #  Bindings should have the format class_name.member_name.
     #  @param self Object pointer

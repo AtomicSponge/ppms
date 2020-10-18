@@ -15,7 +15,7 @@
 #
 ##################################################################
 
-import os, sys, time, json, asyncio
+import os, sys, time, json, asyncio, queue
 import argparse, importlib, inspect
 
 import numpy as np
@@ -97,8 +97,8 @@ def load_module_data(settings, patches):
 ##################################################################
 #  Input coroutine
 ##################################################################
-async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
-    loop = asyncio.get_event_loop()
+async def ppms_input(settings, patches, gate, port, noimpact, verbose):
+    #loop = asyncio.get_event_loop()
     event = asyncio.Event()
 
     ##################################################################
@@ -136,27 +136,34 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
 
             #  ༼つ ◕_◕ ༽つ  Play saw note
             if message[0] == settings['note_on']:
-                note_map.update({message[1]: [ "sawtooth", impact ] })
+                gate.put({'status': 'on', 'note': message[1], 'waveform': 'sawtooth', 'impact': impact})
+                return
+            if message[0] == settings['note_off']:
+                gate.put({'status': 'off', 'note': message[1], 'waveform': 'sawtooth', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play triangle note
             if message[0] == settings['note_on'] + 1:
-                note_map.update({message[1]: [ "triangle", impact ] })
+                gate.put({'status': 'on', 'note': message[1], 'waveform': 'triangle', 'impact': impact})
+                return
+            if message[0] == settings['note_off'] + 1:
+                gate.put({'status': 'off', 'note': message[1], 'waveform': 'triangle', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play square note
             if message[0] == settings['note_on'] + 2:
-                note_map.update({message[1]: [ "square", impact ] })
+                gate.put({'status': 'on', 'note': message[1], 'waveform': 'square', 'impact': impact})
+                return
+            if message[0] == settings['note_off'] + 2:
+                gate.put({'status': 'off', 'note': message[1], 'waveform': 'square', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play sine note
             if message[0] == settings['note_on'] + 3:
-                note_map.update({message[1]: [ "sine", impact ] })
+                gate.put({'status': 'on', 'note': message[1], 'waveform': 'sine', 'impact': impact})
                 return
-
-            #  ༼つ ◕_◕ ༽つ  Stop note
-            if message[0] >= settings['note_off'] and message[0] <= settings['note_off'] + 3:
-                del note_map[message[1]]
+            if message[0] == settings['note_off'] + 3:
+                gate.put({'status': 'off', 'note': message[1], 'waveform': 'sine', 'impact': impact})
                 return
 
             #  (☞ﾟヮﾟ)☞  Check bindings
@@ -218,7 +225,7 @@ async def ppms_input(settings, patches, note_map, port, noimpact, verbose):
 #  Output coroutine
 ##################################################################
 async def ppms_output(settings, patches, note_map, osc):
-    loop = asyncio.get_event_loop()
+    #loop = asyncio.get_event_loop()
     event = asyncio.Event()
     time_index = 0  #  Index for audio output stream
 
@@ -239,7 +246,7 @@ async def ppms_output(settings, patches, note_map, osc):
 
         #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
-        temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯
+        temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯  Prevent iteration errors
         for note in temp_note_map:
             data = temp_note_map.get(note)
             if data[0] == "sawtooth":
@@ -263,12 +270,31 @@ async def ppms_output(settings, patches, note_map, osc):
         await event.wait()
 
 ##################################################################
+#  Gate coroutine
+##################################################################
+async def ppms_gate(gate, note_map, patches):
+    while True:
+        try:
+            signal = gate.get()
+            if signal['status'] == 'on':
+                note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
+            if signal['status'] == 'off':
+                del note_map[signal['note']]
+            #patches.send_gate(signal)
+            gate.task_done()
+        except KeyboardInterrupt:
+            break
+        finally:
+            pass
+
+##################################################################
 #  Main function, starts coroutines
 ##################################################################
 async def main(settings, port, noimpact, verbose):
     #  Create the synth objects
     osc = oscillator(settings['sample_rate'])
     patches = patchboard()
+    gate = queue.Queue()
     note_map = dict()
 
     #  Load data
@@ -278,16 +304,22 @@ async def main(settings, port, noimpact, verbose):
     #  Create coro tasks
     in_task = asyncio.create_task(
         ppms_input(
-            settings, patches, note_map,
+            settings, patches, gate,
             port, noimpact, verbose
         )
     )
     out_task = asyncio.create_task(
         ppms_output(settings, patches, note_map, osc)
     )
+    gate_task = asyncio.create_task(
+        ppms_gate(gate, note_map, patches)
+    )
 
-    await in_task
-    await out_task
+    #await in_task
+    #await out_task
+    #await gate_task
+
+    await asyncio.gather(in_task, out_task, gate_task)
 
 ##################################################################
 #  Start program
@@ -364,7 +396,7 @@ if __name__ == "__main__":
 
     #  Now run the main program
     try:
-        asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=False)
+        asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=True)
     except KeyboardInterrupt:
         sys.exit(0)
     finally:

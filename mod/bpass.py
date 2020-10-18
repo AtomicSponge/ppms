@@ -8,7 +8,7 @@
 
 import numpy as np
 
-##  Band-pass filter.  WIP
+##  Band-pass filter.
 class band_pass:
     ##  Store high pass amount
     __high_pass = 0
@@ -24,15 +24,17 @@ class band_pass:
     def process(self, signal):
         #  Do low pass
         if self.__low_pass > 0:
-            amnt = self.__low_pass / self.__pass_max
-            filter_amnt = np.amax(signal) - (np.amax(signal) * amnt)
+            #amnt = self.__low_pass / self.__pass_max
+            #filter_amnt = np.amax(signal) - (np.amax(signal) * amnt)
+            filter_amnt = 1 - (self.__low_pass / self.__pass_max)
             for x in np.nditer(np.where(signal > filter_amnt)):
                 signal[x] = 0
 
         #  Do high pass
         if self.__high_pass > 0:
-            amnt = self.__high_pass / self.__pass_max
-            filter_amnt = np.amin(signal) - (np.amin(signal) * amnt)
+            #amnt = self.__high_pass / self.__pass_max
+            #filter_amnt = np.amin(signal) - (np.amin(signal) * amnt)
+            filter_amnt = -1 + (self.__high_pass / self.__pass_max)
             for x in np.nditer(np.where(signal < filter_amnt)):
                 signal[x] = 0
 

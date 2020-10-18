@@ -52,3 +52,11 @@ class patchboard:
         for module in self.__patches:
             signal = module.process(module, signal)
         return signal
+
+    ##  Send gate signal.
+    #  @param self Object pointer
+    #  @param signal Gate signal
+    def send_gate(self, signal):
+        for module in self.__patches:
+            pass
+            #if callable(module.gate_signal): #module.gate_signal(module, signal)
