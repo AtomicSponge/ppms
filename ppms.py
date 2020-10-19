@@ -250,8 +250,7 @@ async def ppms_output(settings, patches, note_queue, osc):
             signal = note_queue.get_nowait()
             if signal['status'] == 'on':
                 note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
-            if signal['status'] == 'off':
-                    del note_map[signal['note']]
+            if signal['status'] == 'off': del note_map[signal['note']]
             note_queue.task_done()
         except:
             pass
