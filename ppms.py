@@ -228,7 +228,7 @@ async def ppms_output(settings, patches, note_queue, osc):
     #loop = asyncio.get_event_loop()
     event = asyncio.Event()
     time_index = 0  #  Index for audio output stream
-    note_map = dict()
+    note_map = dict()  #  Map to store playing notes
 
     #  Audio callback.  Generates the waveforms based on the input.
     def audio_callback(outdata, frame_size, time, status):
