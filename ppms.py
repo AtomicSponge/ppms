@@ -224,14 +224,15 @@ async def ppms_input(settings, patches, gate, port, noimpact, verbose):
 ##################################################################
 #  Output coroutine
 ##################################################################
-async def ppms_output(settings, patches, note_map, osc):
+async def ppms_output(settings, patches, note_queue, osc):
     #loop = asyncio.get_event_loop()
     event = asyncio.Event()
     time_index = 0  #  Index for audio output stream
+    note_map = dict()
 
     #  Audio callback.  Generates the waveforms based on the input.
     def audio_callback(outdata, frame_size, time, status):
-        nonlocal time_index, settings, osc, patches, note_map
+        nonlocal time_index, settings, osc, patches, note_map, note_queue
 
         #  Check pitch bend
         pitch_bend = 0
@@ -244,11 +245,22 @@ async def ppms_output(settings, patches, note_map, osc):
             if settings['pitch_bend'] > 64:
                 pitch_bend = settings['pitch_bend'] / 127
 
+        #  Process note map
+        try:
+            signal = note_queue.get_nowait()
+            if signal['status'] == 'on':
+                note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
+            if signal['status'] == 'off':
+                    del note_map[signal['note']]
+            note_queue.task_done()
+        except:
+            pass
+
         #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
-        temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯  Prevent iteration errors
-        for note in temp_note_map:
-            data = temp_note_map.get(note)
+        #temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯  Prevent iteration errors
+        for note in note_map:
+            data = note_map.get(note)
             if data[0] == "sawtooth":
                 audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, pitch_bend, frame_size, time_index)))
             if data[0] == "triangle":
@@ -272,14 +284,11 @@ async def ppms_output(settings, patches, note_map, osc):
 ##################################################################
 #  Gate coroutine
 ##################################################################
-async def ppms_gate(gate, note_map, patches):
+async def ppms_gate(gate, note_queue, patches):
     while True:
         try:
             signal = gate.get()
-            if signal['status'] == 'on':
-                note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
-            if signal['status'] == 'off':
-                del note_map[signal['note']]
+            note_queue.put(signal)
             #patches.send_gate(signal)
             gate.task_done()
         except KeyboardInterrupt:
@@ -295,7 +304,7 @@ async def main(settings, port, noimpact, verbose):
     osc = oscillator(settings['sample_rate'])
     patches = patchboard()
     gate = queue.Queue()
-    note_map = dict()
+    note_queue = queue.Queue()
 
     #  Load data
     load_ppms_modules(settings, patches)
@@ -309,10 +318,10 @@ async def main(settings, port, noimpact, verbose):
         )
     )
     out_task = asyncio.create_task(
-        ppms_output(settings, patches, note_map, osc)
+        ppms_output(settings, patches, note_queue, osc)
     )
     gate_task = asyncio.create_task(
-        ppms_gate(gate, note_map, patches)
+        ppms_gate(gate, note_queue, patches)
     )
 
     #await in_task
