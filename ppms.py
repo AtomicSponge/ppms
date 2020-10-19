@@ -257,7 +257,6 @@ async def ppms_output(settings, patches, note_queue, osc):
 
         #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
-        #temp_note_map = note_map.copy()  #  ¯\_(ツ)_/¯  Prevent iteration errors
         for note in note_map:
             data = note_map.get(note)
             if data[0] == "sawtooth":
