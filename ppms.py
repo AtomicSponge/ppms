@@ -395,21 +395,18 @@ if __name__ == "__main__":
         print("Done!")
 
     #  Now run the main program
+    asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=True)
+
+    #  Wrap up by saving the settings
     try:
-        asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=True)
-    except KeyboardInterrupt:
-        sys.exit(0)
-    finally:
-        #  Wrap up by saving the settings
-        try:
-            with open(args.config, "w") as json_file:
-                json.dump(settings, json_file, indent=4)
-                print("Settings saved!  Exiting...")
-        except IOError:
-            print("Error saving settings.json!  Exiting...")
-            sys.exit(1)
-        print("PPMS Unloaded.")
-        print()
+        with open(args.config, "w") as json_file:
+            json.dump(settings, json_file, indent=4)
+            print("Settings saved!  Exiting...")
+    except IOError:
+        print("Error saving settings.json!  Exiting...")
+        sys.exit(1)
+    print("PPMS Unloaded.")
+    print()
 
 #  ( ⌐■-■)
 #  ( ⌐■-■)>⌐■-■
