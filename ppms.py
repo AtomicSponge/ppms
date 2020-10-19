@@ -286,8 +286,10 @@ async def ppms_gate(gate, note_queue, patches):
     while True:
         try:
             signal = gate.get()
-            note_queue.put(signal)
+
             #patches.send_gate(signal)
+            note_queue.put(signal)
+
             gate.task_done()
         except KeyboardInterrupt:
             break
