@@ -287,7 +287,7 @@ async def ppms_gate(gate, note_queue, patches):
         try:
             signal = gate.get()
 
-            #patches.send_gate(signal)
+            patches.send_gate(signal)
             note_queue.put(signal)
 
             gate.task_done()

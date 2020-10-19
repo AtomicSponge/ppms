@@ -58,5 +58,7 @@ class patchboard:
     #  @param signal Gate signal
     def send_gate(self, signal):
         for module in self.__patches:
-            pass
-            #if callable(module.gate_signal): #module.gate_signal(module, signal)
+            try:
+                module.gate_signal(module, signal)
+            except:
+                pass
