@@ -132,6 +132,13 @@ def save_data(self):
     ]
 ```
 
+- __gate_signal function__ - *Optional* Receive and process gate signals.
+```
+def gate_signal(self, signal):
+    #  Do something with the gate signal
+    pass
+```
+
 For each control in the module, create a seperate function to set its value.  Then to create bindings to these controls, use the format __class_name.function_name__.
 
 ### Example mod.test.py
