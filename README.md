@@ -132,7 +132,7 @@ def save_data(self):
     ]
 ```
 
-- __gate_signal function__ - *Optional* Receive and process gate signals.
+- __gate_signal function__ - *Optional* - Receive and process gate signals.
 ```
 def gate_signal(self, signal):
     #  Do something with the gate signal
