@@ -174,6 +174,17 @@ class test_module:
 
 -----
 
+## Gate Signal
+The *gate signal* is a dictionary and has the following format:
+```
+'status': 'on',
+'note': note_value,
+'waveform': waveform_name,
+'impact': impact_value
+```
+
+-----
+
 ## Presets
 
 Preset files are used to store module parameters and can be loaded during runtime.  When the MIDI message to load a preset is received, it selects the corresponding preset file and sets the active parameters.
