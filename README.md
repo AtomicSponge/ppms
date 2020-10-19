@@ -177,7 +177,7 @@ class test_module:
 ## Gate Signal
 The *gate signal* is a dictionary and has the following format:
 ```
-'status': 'on',
+'status': 'on' or 'off',
 'note': note_value,
 'waveform': waveform_name,
 'impact': impact_value
