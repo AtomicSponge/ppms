@@ -281,8 +281,11 @@ async def ppms_output(settings, patches, note_queue, osc):
 
 ##################################################################
 #  Gate coroutine
+#  @bug - does not exit properly
 ##################################################################
 async def ppms_gate(gate, note_queue, patches):
+    #loop = asyncio.get_event_loop()
+    #event = asyncio.Event()
     while True:
         try:
             signal = gate.get()
@@ -295,6 +298,8 @@ async def ppms_gate(gate, note_queue, patches):
             break
         finally:
             pass
+    # end while true
+    #
 
 ##################################################################
 #  Main function, starts coroutines
