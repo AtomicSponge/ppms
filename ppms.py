@@ -288,8 +288,7 @@ async def ppms_gate(exit_event, gate, note_queue, patches):
             break
         except:
             pass
-        finally:
-            exit_event.set()  #  Send exit event
+    exit_event.set()  #  Send exit event
 
 ##################################################################
 #  Main function, starts coroutines
