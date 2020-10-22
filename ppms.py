@@ -97,10 +97,7 @@ def load_module_data(settings, patches):
 ##################################################################
 #  Input coroutine
 ##################################################################
-async def ppms_input(settings, patches, gate, port, noimpact, verbose):
-    #loop = asyncio.get_event_loop()
-    event = asyncio.Event()
-
+async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbose):
     ##################################################################
     #  \START/ MIDI Input handler   ♪ヽ( ⌒o⌒)人(⌒-⌒ )v ♪
     ##################################################################
@@ -214,19 +211,13 @@ async def ppms_input(settings, patches, gate, port, noimpact, verbose):
         midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
     )
 
-    try:
-        await event.wait()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        del midiin
+    await exit_event.wait()
+    del midiin
 
 ##################################################################
 #  Output coroutine
 ##################################################################
-async def ppms_output(settings, patches, note_queue, osc):
-    #loop = asyncio.get_event_loop()
-    event = asyncio.Event()
+async def ppms_output(exit_event, settings, patches, note_queue, osc):
     time_index = 0  #  Index for audio output stream
     note_map = dict()  #  Map to store playing notes
 
@@ -276,19 +267,15 @@ async def ppms_output(settings, patches, note_queue, osc):
         callback=audio_callback, channels=1, dtype=np.float32,
         samplerate=settings['sample_rate']
     )
-    with stream:
-        await event.wait()
+    with stream: await exit_event.wait()
 
 ##################################################################
 #  Gate coroutine
-#  @bug - does not exit properly
 ##################################################################
-async def ppms_gate(gate, note_queue, patches):
-    #loop = asyncio.get_event_loop()
-    #event = asyncio.Event()
+async def ppms_gate(exit_event, gate, note_queue, patches):
     while True:
         try:
-            signal = gate.get()
+            signal = gate.get(block=True, timeout=1)
 
             patches.send_gate(signal)
             note_queue.put(signal)
@@ -296,10 +283,10 @@ async def ppms_gate(gate, note_queue, patches):
             gate.task_done()
         except KeyboardInterrupt:
             break
-        finally:
+        except:
             pass
-    # end while true
-    #
+        finally:
+            exit_event.set()
 
 ##################################################################
 #  Main function, starts coroutines
@@ -315,25 +302,26 @@ async def main(settings, port, noimpact, verbose):
     load_ppms_modules(settings, patches)
     load_module_data(settings, patches)
 
+    #  Event object for exiting program
+    exit_event = asyncio.Event()
+
     #  Create coro tasks
     in_task = asyncio.create_task(
         ppms_input(
-            settings, patches, gate,
+            exit_event, settings, patches, gate,
             port, noimpact, verbose
         )
     )
     out_task = asyncio.create_task(
-        ppms_output(settings, patches, note_queue, osc)
+        ppms_output(exit_event, settings, patches, note_queue, osc)
     )
     gate_task = asyncio.create_task(
-        ppms_gate(gate, note_queue, patches)
+        ppms_gate(exit_event, gate, note_queue, patches)
     )
 
-    #await in_task
-    #await out_task
-    #await gate_task
-
-    await asyncio.gather(in_task, out_task, gate_task)
+    await in_task
+    await out_task
+    await gate_task
 
 ##################################################################
 #  Start program
@@ -409,7 +397,7 @@ if __name__ == "__main__":
         print("Done!")
 
     #  Now run the main program
-    asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=True)
+    asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=False)
 
     #  Wrap up by saving the settings
     try:
