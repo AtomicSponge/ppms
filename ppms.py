@@ -273,6 +273,7 @@ async def ppms_output(exit_event, settings, patches, note_queue, osc):
 
 ##################################################################
 #  Gate coroutine
+#  Also controls exiting program
 ##################################################################
 async def ppms_gate(exit_event, gate, note_queue, patches):
     while True:
