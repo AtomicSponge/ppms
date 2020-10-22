@@ -211,6 +211,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
         midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
     )
 
+    #  Run until exit event
     await exit_event.wait()
     del midiin
 
@@ -267,6 +268,7 @@ async def ppms_output(exit_event, settings, patches, note_queue, osc):
         callback=audio_callback, channels=1, dtype=np.float32,
         samplerate=settings['sample_rate']
     )
+    #  Run until exit event
     with stream: await exit_event.wait()
 
 ##################################################################
@@ -286,7 +288,7 @@ async def ppms_gate(exit_event, gate, note_queue, patches):
         except:
             pass
         finally:
-            exit_event.set()
+            exit_event.set()  #  Send exit event
 
 ##################################################################
 #  Main function, starts coroutines
