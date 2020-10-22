@@ -55,10 +55,10 @@ class patchboard:
 
     ##  Send gate signal.
     #  @param self Object pointer
-    #  @param signal Gate signal
-    def send_gate(self, signal):
+    #  @param gate Gate signal
+    def send_gate(self, gate):
         for module in self.__patches:
             try:
-                module.gate_signal(module, signal)
+                module.gate_signal(module, gate)
             except:
                 pass
