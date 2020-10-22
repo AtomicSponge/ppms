@@ -237,7 +237,7 @@ async def ppms_output(exit_event, settings, patches, note_queue, osc):
             if settings['pitch_bend'] > 64:
                 pitch_bend = settings['pitch_bend'] / 127
 
-        #  Process note map
+        #  Process note queue
         try:
             signal = note_queue.get_nowait()
             if signal['status'] == 'on':
