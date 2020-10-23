@@ -20,7 +20,7 @@ import numpy as np
 from scipy import signal
 
 ##  Generates samples of different waveforms
-class oscillator:
+class oscillator(object):
     ##  Initialize and generate sample data.
     #  @param self Object pointer
     #  @param rate Sample rate
@@ -86,7 +86,7 @@ class oscillator:
         return np.sin(2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend) * self.__calc_period(frame_size, time_data))
 
 ##  Creates "patches" of "synth modules" to process the signal.
-class patchboard:
+class patchboard(object):
     ##  Initialize patchboard.
     #  @param self Object pointer
     def __init__(self):
@@ -134,6 +134,7 @@ class patchboard:
         for module in self.__patches:
             try:
                 signal = module.process(module, signal)
+                #print(module.__name__)
             except:
                 pass
         return signal
@@ -145,12 +146,14 @@ class patchboard:
         for module in self.__patches:
             try:
                 module.gate_signal(module, gate)
+                #print(module.__name__)
             except:
                 pass
 
 ##  Gate part
-class gate_control:
+class gate_control(object):
     state = dict()
+    test = 'hi'
 
     ## Process gate signal
     #  @param self Object pointer

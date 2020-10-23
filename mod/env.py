@@ -9,17 +9,26 @@
 from .parts import gate_control
 
 ##  Envelope - ADSR
-class envelope(gate_control):
+class envelope(object):
     __attack = 0
     __decay = 0
     __sustain = 0
     __release = 0
+
+    #def __init__(self):
+        #super().__init__(self)
+
+    def __init__(self):
+        self.__obj = gate_control()
+    def __getattr__(self, attr):
+        return getattr(self.__obj, attr)
 
     ## Process envelope
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
+        print(self.__getattr__(test))
         if self.__attack > 0:
             print("A:", self.__attack)
         if self.__decay > 0:
