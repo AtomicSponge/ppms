@@ -134,7 +134,6 @@ class patchboard(object):
         for module in self.__patches:
             try:
                 signal = module.process(module, signal)
-                #print(module.__name__)
             except:
                 pass
         return signal
@@ -146,18 +145,15 @@ class patchboard(object):
         for module in self.__patches:
             try:
                 module.gate_signal(module, gate)
-                #print(module.__name__)
             except:
                 pass
 
 ##  Gate part
 class gate_control(object):
     state = dict()
-    test = 'hi'
 
     ## Process gate signal
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
         print(gate)
-        #print(self.state)

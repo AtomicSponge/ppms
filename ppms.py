@@ -83,6 +83,7 @@ def load_ppms_modules(settings, patches):
             if inspect.isclass(obj):
                 patches.add_module(obj)
                 print("Loaded: ", mod.__name__)
+                break
     print("Modules loaded!")
 
 ##################################################################
