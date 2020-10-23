@@ -24,8 +24,8 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.osc import oscillator
-from mod.patch import patchboard
+from mod.parts import oscillator
+from mod.parts import patchboard
 
 ##################################################################
 #  Function to return a map of the default settings
@@ -96,6 +96,7 @@ def load_module_data(settings, patches):
 
 ##################################################################
 #  Input coroutine
+#  Get MIDI messages and process
 ##################################################################
 async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbose):
     ##################################################################
@@ -217,6 +218,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
 
 ##################################################################
 #  Output coroutine
+#  Gets on/off signals from the gate and updates the playing notes
 ##################################################################
 async def ppms_output(exit_event, settings, patches, note_queue, osc):
     time_index = 0  #  Index for audio output stream

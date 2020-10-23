@@ -6,13 +6,14 @@
 #  See LICENSE.md for copyright information.
 #
 
+from .parts import gate
+
 ##  Envelope - ADSR
-class envelope:
+class envelope(gate):
     __attack = 0
     __decay = 0
     __sustain = 0
     __release = 0
-    __gate = False
 
     ## Process envelope
     #  @param self Object pointer
@@ -28,12 +29,6 @@ class envelope:
         if self.__release > 0:
             print("R:", self.__release)
         return signal
-
-    ## Process gate signal
-    #  @param self Object pointer
-    #  @param gate Gate signal
-    def gate_signal(self, gate):
-        print(gate)
 
     ##  Build an array of save data for the module.
     #  Bindings should have the format class_name.member_name.
