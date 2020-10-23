@@ -1,10 +1,19 @@
+##################################################################
 #
 #  Python Polyphonic MIDI Synthesizer
 #
+##################################################################
+#
+#               ~~~~~~~[]=¤ԅ(ˊᗜˋ* )੭
+#
 #  Filename:  parts.py
 #  By:  Matthew Evans
-#  See LICENSE.md for copyright information.
+#       https://www.wtfsystems.net/
 #
+#  See LICENSE.md for copyright information.
+#  See README.md for usage information.
+#
+##################################################################
 
 import math
 import numpy as np
