@@ -6,10 +6,10 @@
 #  See LICENSE.md for copyright information.
 #
 
-from .parts import gate
+from .parts import gate_control
 
 ##  Envelope - ADSR
-class envelope(gate):
+class envelope(gate_control):
     __attack = 0
     __decay = 0
     __sustain = 0

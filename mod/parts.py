@@ -149,7 +149,7 @@ class patchboard:
                 pass
 
 ##  Gate part
-class gate:
+class gate_control:
     state = dict()
 
     ## Process gate signal
