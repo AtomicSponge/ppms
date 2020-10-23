@@ -24,8 +24,7 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.parts import oscillator
-from mod.parts import patchboard
+from mod.parts import oscillator, patchboard
 
 ##################################################################
 #  Function to return a map of the default settings
