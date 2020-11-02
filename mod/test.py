@@ -6,8 +6,10 @@
 #  See LICENSE.md for copyright information.
 #
 
+from .parts import synthmod
+
 ##  PPMS Synth Module for testing the patchboard.
-class test_module:
+class test_module(synthmod):
     ##  Store test_value
     __test_value = 0
 
@@ -16,7 +18,11 @@ class test_module:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        print("Test value: ", self.__test_value)
+        if self.__test_value > self.MIDI_MIN:
+            if self.__test_value == self.MIDI_MAX:
+                print("Text value at max: ", self.__test_value)
+            else:
+                print("Test value: ", self.__test_value)
         return signal
 
     ##  Build an array of save data for the module.

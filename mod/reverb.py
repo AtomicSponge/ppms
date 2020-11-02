@@ -6,22 +6,21 @@
 #  See LICENSE.md for copyright information.
 #
 
+from .parts import synthmod
 import numpy as np
 
 ##  PPMS Synth Module for reverb.  Shifts the signal and adds to original.
-class reverberation:
+class reverberation(synthmod):
     ##  Store reverb amount
     __reverb = 0
-    ##  Max reverb value
-    __reverb_max = 127
 
     ## Reverb process - Add a shifted array to the signal.
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        if self.__reverb > 0:
-            signal += np.roll(signal, int(signal.size * (self.__reverb / self.__reverb_max)))
+        if self.__reverb > self.MIDI_MIN:
+            signal += np.roll(signal, int(signal.size * (self.__reverb / self.MIDI_MAX)))
         return signal
 
     ##  Build an array of save data for the module.

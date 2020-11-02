@@ -148,8 +148,16 @@ class patchboard(object):
             except:
                 pass
 
-##  Gate part
+##  Synth module base class
+class synthmod(object):
+    ##  Midi min
+    MIDI_MIN = 0
+    ##  Midi max
+    MIDI_MAX = 127
+
+##  Gate part for synth modules
 class gate_control(object):
+    ##  State dictionary
     state = dict()
 
     ## Process gate signal
@@ -157,3 +165,7 @@ class gate_control(object):
     #  @param gate Gate signal
     def gate_signal(self, gate):
         print(gate)
+        # state = note | gate(on/off) | state
+        # if msg on add to state
+        # if msg off set gate to off
+        # if gate == off AND state == idle, remove

@@ -6,16 +6,15 @@
 #  See LICENSE.md for copyright information.
 #
 
+from .parts import synthmod
 import numpy as np
 
 ##  Band-pass filter.
-class band_pass:
+class band_pass(synthmod):
     ##  Store high pass amount
     __high_pass = 0
     ##  Store low pass amount
     __low_pass = 0
-    ##  Store filter max value
-    __pass_max = 127
 
     ## Process low pass and high pass filters
     #  @param self Object pointer
@@ -23,14 +22,14 @@ class band_pass:
     #  @return Modified signal data
     def process(self, signal):
         #  Do low pass
-        if self.__low_pass > 0:
-            filter_amnt = 1 - (self.__low_pass / self.__pass_max)
+        if self.__low_pass > self.MIDI_MIN:
+            filter_amnt = 1 - (self.__low_pass / self.MIDI_MAX)
             for x in np.nditer(np.where(signal > filter_amnt)):
                 signal[x] = 0
 
         #  Do high pass
-        if self.__high_pass > 0:
-            filter_amnt = -1 + (self.__high_pass / self.__pass_max)
+        if self.__high_pass > self.MIDI_MIN:
+            filter_amnt = -1 + (self.__high_pass / self.MIDI_MAX)
             for x in np.nditer(np.where(signal < filter_amnt)):
                 signal[x] = 0
 

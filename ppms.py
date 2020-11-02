@@ -37,8 +37,14 @@ def create_default_settings():
         'preset_folder': "presets",
 
         #  Key bindings
-        'note_on': 144,
-        'note_off': 128,
+        'sawtooth_on': 144,
+        'sawtooth_off': 128,
+        'triangle_on': 145,
+        'triangle_off': 129,
+        'square_on': 146,
+        'square_off': 130,
+        'sine_on': 147,
+        'sine_off': 131,
         'preset_msg': 192,
 
         #  List modules to load
@@ -66,7 +72,7 @@ def create_default_settings():
 
         #  Variables
         'master_volume': 50,
-        'pitch_bend': 0,
+        'pitch_bend': 64,
         'mod_value': 0,
     }
 
@@ -91,12 +97,16 @@ def load_ppms_modules(settings, patches):
 ##################################################################
 def load_module_data(settings, patches):
     for module_data in settings['module_data']:
-        mod = module_data[0].split(".", 1)
-        getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
+        try:
+            mod = module_data[0].split(".", 1)
+            getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
+        except:
+            pass  #  On error do nothing
 
 ##################################################################
 #  Input coroutine
 #  Get MIDI messages and process
+#  Creates the MIDI input handler then sleeps until exit
 ##################################################################
 async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbose):
     ##################################################################
@@ -129,38 +139,39 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                         print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
                 return
 
+            #  ᕙ[･۝･]ᕗ  Calculate impact
             if(self.__noimpact): impact = 80 / self.__weight
-            else: impact = message[2] * 3 / self.__weight
+            else: impact = message[2] / self.__weight
 
             #  ༼つ ◕_◕ ༽つ  Play saw note
-            if message[0] == settings['note_on']:
+            if message[0] == settings['sawtooth_on']:
                 gate.put({'status': 'on', 'note': message[1], 'waveform': 'sawtooth', 'impact': impact})
                 return
-            if message[0] == settings['note_off']:
+            if message[0] == settings['sawtooth_off']:
                 gate.put({'status': 'off', 'note': message[1], 'waveform': 'sawtooth', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play triangle note
-            if message[0] == settings['note_on'] + 1:
+            if message[0] == settings['triangle_on']:
                 gate.put({'status': 'on', 'note': message[1], 'waveform': 'triangle', 'impact': impact})
                 return
-            if message[0] == settings['note_off'] + 1:
+            if message[0] == settings['triangle_off']:
                 gate.put({'status': 'off', 'note': message[1], 'waveform': 'triangle', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play square note
-            if message[0] == settings['note_on'] + 2:
+            if message[0] == settings['square_on']:
                 gate.put({'status': 'on', 'note': message[1], 'waveform': 'square', 'impact': impact})
                 return
-            if message[0] == settings['note_off'] + 2:
+            if message[0] == settings['square_off']:
                 gate.put({'status': 'off', 'note': message[1], 'waveform': 'square', 'impact': impact})
                 return
 
             #  ༼つ ◕_◕ ༽つ  Play sine note
-            if message[0] == settings['note_on'] + 3:
+            if message[0] == settings['sine_on']:
                 gate.put({'status': 'on', 'note': message[1], 'waveform': 'sine', 'impact': impact})
                 return
-            if message[0] == settings['note_off'] + 3:
+            if message[0] == settings['sine_off']:
                 gate.put({'status': 'off', 'note': message[1], 'waveform': 'sine', 'impact': impact})
                 return
 
@@ -171,28 +182,32 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                     #  Adjust master volume
                     if(bindings[0] == "master_volume"):
                         settings['master_volume'] = message[2]
-                        break
+                        return
                     #  Check the pitch wheel
                     elif(bindings[0] == "pitch_wheel"):
                         settings['pitch_bend'] = message[2]
-                        break
+                        return
                     #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
-                        break
+                        return
                     #elif:
-                        #break
+                        #return
                     #  Find the loaded module and process its control
                     else:
-                        mod = bindings[0].split(".", 1)
-                        getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
-                        break
+                        try:
+                            mod = bindings[0].split(".", 1)
+                            getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), message[2])
+                        except:
+                            pass  #  If binding not found, do nothing
+                        return
     ##################################################################
     #  \END/ MIDI Input handler         ( ຈ ﹏ ຈ )
     ##################################################################
 
-    #  Connect to MIDI device and start handler
+    #  Connect to MIDI device
     try:
+        #  Prompt if port not given
         midiin, port_name = open_midiinput(port)
     except KeyboardInterrupt:
         print("Exiting...")
@@ -207,10 +222,15 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
         print("Error opening MIDI port!  Exiting...")
         sys.exit(1)
 
+    #  Create the MIDI handler
+    try:
+        midiin.set_callback(
+            midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
+        )
+    except:
+        print("Error creating MIDI callback!  Exiting...")
+        sys.exit(1)
     print("Connected to: ", port_name)
-    midiin.set_callback(
-        midi_input_handler(port_name, settings['impact_weight'], noimpact, verbose)
-    )
 
     #  Run until exit event
     await exit_event.wait()
@@ -219,6 +239,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
 ##################################################################
 #  Output coroutine
 #  Gets on/off signals from the gate and updates the playing notes
+#  Creates the audio output callback then sleeps until exit
 ##################################################################
 async def ppms_output(exit_event, settings, patches, note_queue, osc):
     time_index = 0  #  Index for audio output stream
@@ -240,29 +261,31 @@ async def ppms_output(exit_event, settings, patches, note_queue, osc):
                 pitch_bend = settings['pitch_bend'] / 127
 
         #  Process note queue
-        try:
-            signal = note_queue.get_nowait()
-            if signal['status'] == 'on':
-                note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
-            if signal['status'] == 'off': del note_map[signal['note']]
-            note_queue.task_done()
-        except:
-            pass
+        while True:
+            try:
+                signal = note_queue.get_nowait()
+                if signal['status'] == 'on':
+                    note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
+                if signal['status'] == 'off': del note_map[signal['note']]
+                note_queue.task_done()
+            except:
+                break  #  Loop until queue is processed
 
         #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
         for note in note_map:
-            data = note_map.get(note)
-            if data[0] == "sawtooth":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sawtooth(note, pitch_bend, frame_size, time_index)))
-            if data[0] == "triangle":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.triangle(note, pitch_bend, frame_size, time_index)))
-            if data[0] == "square":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.square(note, pitch_bend, frame_size, time_index)))
-            if data[0] == "sine":
-                audio_signal = np.add(audio_signal, (settings['master_volume'] * data[1]) * patches.patch(osc.sine(note, pitch_bend, frame_size, time_index)))
+            try:
+                note_data = note_map.get(note)
+                #  volume * impact * waveform(note, pitch_bend, frame_size, time_index)
+                audio_signal = np.add(audio_signal, (settings['master_volume'] * note_data[1]) *
+                    patches.patch(getattr(osc, note_data[0])(note, pitch_bend, frame_size, time_index)))
+            except:
+                pass  #  On errors generate nothing
         outdata[:] = audio_signal
+
+        #  Increment time index for next frame
         time_index += frame_size
+        #  Just incase the time index gets too large
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
 
     #  Set the audio callback

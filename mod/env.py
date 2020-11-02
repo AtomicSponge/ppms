@@ -6,10 +6,10 @@
 #  See LICENSE.md for copyright information.
 #
 
-from .parts import gate_control
+from .parts import synthmod, gate_control
 
 ##  Envelope - ADSR
-class envelope(gate_control):
+class envelope(synthmod, gate_control):
     __attack = 0
     __decay = 0
     __sustain = 0
@@ -20,13 +20,13 @@ class envelope(gate_control):
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        if self.__attack > 0:
+        if self.__attack > self.MIDI_MIN:
             print("A:", self.__attack)
-        if self.__decay > 0:
+        if self.__decay > self.MIDI_MIN:
             print("D:", self.__decay)
-        if self.__sustain > 0:
+        if self.__sustain > self.MIDI_MIN:
             print("S:", self.__sustain)
-        if self.__release > 0:
+        if self.__release > self.MIDI_MIN:
             print("R:", self.__release)
         return signal
 

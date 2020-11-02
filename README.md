@@ -46,14 +46,20 @@ Settings can be found in the file *settings.json*.  One will be created automati
 #### Sample rate
 You can set the sample rate here.  Defaults to 44100Hz.  Value is a float.
 ```
-'sample_rate': 44100.0,
+"sample_rate": 44100.0,
 ```
 
 #### Keyboard events
 The MIDI note on/off messages.  Defaults to the following:
 ```
-'note_on': 144,
-'note_off': 128,
+"sawtooth_on": 144,
+"sawtooth_off": 128,
+"triangle_on": 145,
+"triangle_off": 129,
+"square_on": 146,
+"square_off": 130,
+"sine_on": 147,
+"sine_off": 131,
 ```
 
 The load preset message is defined as:
@@ -64,25 +70,25 @@ The load preset message is defined as:
 #### Impact weight
 Set the impact weight.  This is used for factoring keyboard velocity.
 ```
-'impact_weight': 20000,
+"impact_weight": 20000,
 ```
 
 #### Preset directory
 Folder to load preset files from.
 ```
-'preset_folder': "presets",
+"preset_folder": "presets",
 ```
 
 #### Loading modules
 Load modules to process the signal.  The signal will be filtered through each module in order added.
 ```
-'modules': [ 'mod.test', 'mod.another' ],
+"modules": [ "mod.test", "mod.another" ],
 ```
 
 #### Loading presets
 List preset files in order here.  These files must be located in the folder as indicated by the __preset_folder__ setting.
 ```
-'presets': [ "example1.json", "example2.json" ],
+"presets": [ "example1.json", "example2.json" ],
 ```
 
 Run with *--build_presets* to generate a list from the presets folder.
@@ -92,22 +98,22 @@ Bind MIDI controls to modules or general settings.
 
 __Format:__ binding_name, midi_msg[0], midi_msg[1]
 ```
-'bindings': [
+"bindings": [
     #  Default bindings
-    [ 'master_volume', 176, 29 ],
-    [ 'pitch_wheel', 224, 0 ],
-    [ 'mod_wheel', 176, 1 ],
+    [ "master_volume", 176, 29 ],
+    [ "pitch_wheel", 224, 0 ],
+    [ "mod_wheel", 176, 1 ],
 
     #  Module bindings
     #  Binding names should have the format class_name.member_name
-    [ 'test_module.set_a_value', 176, 118 ]
+    [ "test_module.set_a_value", 176, 118 ]
 ],
 ```
 
 #### Saving data
 Modules will store their data values here on shutdown, then restore them on next run.
 ```
-'module_data': []
+"module_data": []
 ```
 
 -----
@@ -127,8 +133,8 @@ def process(self, signal):
 ```
 def save_data(self):
     return [
-        [ 'example.control_a', self.value_a ],
-        [ 'example.control_b', self.value_b ]
+        [ "example.control_a", self.value_a ],
+        [ "example.control_b", self.value_b ]
     ]
 ```
 
@@ -143,8 +149,10 @@ For each control in the module, create a seperate function to set its value.  Th
 
 ### Example mod.test.py
 ```
+from .parts import synthmod
+
 ##  PPMS Synth Module for testing the patchboard.
-class test_module:
+class test_module(synthmod):
     ##  Store test_value
     __test_value = 0
 
@@ -153,7 +161,11 @@ class test_module:
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        print("Test value:", self.__test_value)
+        if self.__test_value > self.MIDI_MIN:
+            if self.__test_value == self.MIDI_MAX:
+                print("Text value at max: ", self.__test_value)
+            else:
+                print("Test value: ", self.__test_value)
         return signal
 
     ##  Build an array of save data for the module.
@@ -177,10 +189,10 @@ class test_module:
 ## Gate Signal
 The *gate signal* is a dictionary and has the following format:
 ```
-'status': 'on' or 'off',
-'note': note_value,
-'waveform': waveform_name,
-'impact': impact_value
+"status": "on" or "off",
+"note": note_value,
+"waveform": waveform_name,
+"impact": impact_value
 ```
 
 -----
