@@ -107,7 +107,7 @@ class patchboard(object):
     ##  Get a module by name.
     #  @param self Object pointer
     #  @param name Name of module to search for
-    #  @return Module object if found, else None
+    #  @return Module object if found, else raise not found exception
     def get_module(self, name):
         for module in self.__patches:
             if(name == module.__name__):
