@@ -112,7 +112,7 @@ class patchboard(object):
         for module in self.__patches:
             if(name == module.__name__):
                 return module
-        return None
+        raise Exception("Module not found")
 
     ##  Save all module data.
     #  @param self Object pointer
