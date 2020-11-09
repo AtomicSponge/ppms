@@ -83,14 +83,17 @@ def load_ppms_modules(settings, patches):
     patches.clear_modules()
     #  Take modules listed in settings and load into the patchboard
     for load_module in settings['modules']:
-        mod = importlib.import_module(load_module)
-        #  Find the class and add to patches
-        for member_name, obj in inspect.getmembers(mod):
-            if inspect.isclass(obj):
-                patches.add_module(obj)
-                print("Loaded: ", mod.__name__)
-                break
-    print("Modules loaded!")
+        try:
+            mod = importlib.import_module(load_module)
+            #  Find the class and add to patches
+            for member_name, obj in inspect.getmembers(mod):
+                if inspect.isclass(obj):
+                    patches.add_module(obj)
+                    print("Loaded module: ", mod.__name__)
+                    break
+        except:
+            #  Report error and continue
+            print("Failed loading module: ", load_module)
 
 ##################################################################
 #  Function to load module parameter data
@@ -101,7 +104,8 @@ def load_module_data(settings, patches):
             mod = module_data[0].split(".", 1)
             getattr(patches.get_module(mod[0]), mod[1])(patches.get_module(mod[0]), module_data[1])
         except:
-            pass  #  On error do nothing
+            #  Report error and continue
+            print("Unable to set: ", module_data[0])
 
 ##################################################################
 #  Input coroutine
@@ -136,6 +140,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                             load_module_data(settings, patches)
                             print(f"Preset {settings['preset_folder']}/{settings['presets'][message[1]]} loaded!")
                     except IOError:
+                        #  Report error and continue
                         print("Error loading preset: ", settings['preset_folder'] + "/" + settings['presets'][message[1]])
                 return
 
@@ -241,11 +246,11 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
 #  Gets on/off signals from the gate and updates the playing notes
 #  Creates the audio output callback then sleeps until exit
 ##################################################################
-async def ppms_output(exit_event, settings, patches, note_queue, osc):
+async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
     time_index = 0  #  Index for audio output stream
     note_map = dict()  #  Map to store playing notes
 
-    #  Audio callback.  Generates the waveforms based on the input.
+    #  Audio callback.  Generates the waveforms based on the input
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map, note_queue
 
@@ -302,23 +307,29 @@ async def ppms_output(exit_event, settings, patches, note_queue, osc):
 ##################################################################
 async def ppms_gate(exit_event, gate, note_queue, patches):
     while True:
+        signal = None
         try:
-            signal = gate.get(block=True, timeout=1)
-
+            signal = gate.get(block=True, timeout=0.1)
             patches.send_gate(signal)
-            note_queue.put(signal)
-
             gate.task_done()
         except KeyboardInterrupt:
             break
         except:
             pass
+        #  If there was a gate signal, 
+        if signal is not None:
+            try:
+                note_queue.put(signal)
+            except KeyboardInterrupt:
+                break
+            except:
+                pass
     exit_event.set()  #  Send exit event
 
 ##################################################################
 #  Main function, starts coroutines
 ##################################################################
-async def main(settings, port, noimpact, verbose):
+async def main(settings, port, device, noimpact, verbose):
     #  Create the synth objects
     osc = oscillator(settings['sample_rate'])
     patches = patchboard()
@@ -340,7 +351,7 @@ async def main(settings, port, noimpact, verbose):
         )
     )
     out_task = asyncio.create_task(
-        ppms_output(exit_event, settings, patches, note_queue, osc)
+        ppms_output(exit_event, device, settings, patches, note_queue, osc)
     )
     gate_task = asyncio.create_task(
         ppms_gate(exit_event, gate, note_queue, patches)
@@ -367,6 +378,10 @@ if __name__ == "__main__":
         metavar="#", type=int, help="MIDI port number to connect to."
     )
     parser.add_argument(
+        "-o", "--output", dest="device", default=None,
+        metavar="#", type=int, help="Audio out device."
+    )
+    parser.add_argument(
         "-v", "--verbose", dest="verbose", default=False,
         action="store_true", help="Display MIDI messages."
     )
@@ -388,7 +403,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    #  If --defaults was passed, create default settings.json file then exit.
+    #  If --defaults was passed, create default settings.json file then exit
     if(args.set_defaults):
         settings = create_default_settings()
         try:
@@ -417,14 +432,27 @@ if __name__ == "__main__":
         print("Error loading settings!  Exiting...")
         sys.exit(1)
 
-    #  If --build_presets was passed, load preset files into settings.
+    #  If --build_presets was passed, load preset files into settings
     if(args.build_presets):
         print("Building preset list...")
         settings['presets'] = [f for f in os.listdir(settings['preset_folder'] + "/") if f.endswith(".json")]
         print("Done!")
 
+    #  Check if MIDI port or Output Device is configured in settings
+    #  Command line arguments will override
+    try:
+        if settings['midi_port'] is not None and args.port is None:
+            args.port = settings['midi_port']
+    except:
+        pass
+    try:
+        if settings['output_device'] is not None and args.device is None:
+            args.device = settings['output_device']
+    except:
+        pass
+
     #  Now run the main program
-    asyncio.run(main(settings, args.port, args.noimpact, args.verbose), debug=False)
+    asyncio.run(main(settings, args.port, args.device, args.noimpact, args.verbose), debug=False)
 
     #  Wrap up by saving the settings
     try:

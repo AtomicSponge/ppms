@@ -110,9 +110,8 @@ class patchboard(object):
     #  @return Module object if found, else raise not found exception
     def get_module(self, name):
         for module in self.__patches:
-            if(name == module.__name__):
-                return module
-        raise Exception("Module not found")
+            if(name == module.__name__): return module
+        raise IndexError("Module not found")
 
     ##  Save all module data.
     #  @param self Object pointer
