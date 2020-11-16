@@ -19,7 +19,7 @@ import math
 import numpy as np
 from scipy import signal
 
-##  Generates samples of different waveforms
+##  Generates samples of different waveforms.
 class oscillator(object):
     ##  Initialize and generate sample data.
     #  @param self Object pointer
@@ -35,7 +35,7 @@ class oscillator(object):
     def __calc_frequency(self, note):
         return math.pow(2, (note - 69) / 12) * 440
 
-    ##  Calculate period
+    ##  Calculate period.
     #  @param self Object pointer
     #  @param frame_size Amount to generate
     #  @param time_data Position in time
@@ -44,7 +44,7 @@ class oscillator(object):
         t = (time_data + np.arange(frame_size)) / self.__frequency
         return t.reshape(-1, 1)
 
-    ##  Calculate pitch bend
+    ##  Calculate pitch bend.
     #  @param self Object pointer
     #  @param note_freq Calculated note frequency
     #  @param pich_bend Calculated pitch bend amount
@@ -147,19 +147,35 @@ class patchboard(object):
             except:
                 pass
 
-##  Synth module base class
+##  Synth module base class.
 class synthmod(object):
     ##  Midi min
     MIDI_MIN = 0
     ##  Midi max
     MIDI_MAX = 127
 
-##  Gate part for synth modules
-class gate_control(object):
+    ##  Return the gate status.
+    #  Only returns idle state.
+    #  @param self Object pointer
+    #  @param note Note to check status on
+    def gate_status(self, note):
+        return "idle"
+
+##
+class bpm_control(object):
+    pass
+
+##
+class mod_control(object):
+    ##  Use mod control
+    USE_MOD = False
+
+##  Gate part for synth modules.
+class gate_control(bpm_control):
     ##  State dictionary
     state = dict()
 
-    ## Process gate signal
+    ## Process gate signal.
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
@@ -168,3 +184,10 @@ class gate_control(object):
         # if msg on add to state
         # if msg off set gate to off
         # if gate == off AND state == idle, remove
+
+    ##  Return the gate status.
+    #  Returns the state for the passed note.
+    #  @param self Object pointer
+    #  @param note Note to check status on
+    def gate_status(self, note):
+        return "wip"

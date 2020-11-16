@@ -6,7 +6,7 @@
 
 ### About
 
-[Python3](https://www.python.org/) script that simulates a [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
+[Python](https://www.python.org/) script that simulates a basic [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used on supported platforms.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
 
 ### Requirements
 
@@ -15,6 +15,8 @@ Requires the following packages to be installed:
 - [scipy](https://www.scipy.org/)
 - [sounddevice](https://pypi.org/project/sounddevice/)
 - [python-rtmidi](https://pypi.org/project/python-rtmidi/)
+
+###  How to Use
 
 -----
 
@@ -34,6 +36,8 @@ You can select which waveform is generated using MIDI program change.
 ### Patchboard
 
 ### Synth Modules
+
+### BPM Control
 
 ### Gate Control
 
@@ -201,6 +205,7 @@ class test_module(synthmod):
 -----
 
 ## Gate Signal
+
 The *gate signal* is a dictionary and has the following format:
 ```
 "status": "on" or "off",

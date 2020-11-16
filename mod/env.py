@@ -9,7 +9,7 @@
 from .parts import synthmod, gate_control
 
 ##  Envelope - ADSR
-class envelope(synthmod, gate_control):
+class envelope(gate_control, synthmod):
     __attack = 0
     __decay = 0
     __sustain = 0

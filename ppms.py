@@ -33,7 +33,7 @@ def create_default_settings():
     return {
         #  Config settings
         'sample_rate': 44100.0,
-        'impact_weight': 10000,
+        'impact_weight': 0.0006,
         'preset_folder': "presets",
 
         #  Key bindings
@@ -61,6 +61,7 @@ def create_default_settings():
             [ 'master_volume', 176, 24 ],
             [ 'pitch_wheel', 224, 0 ],
             [ 'mod_wheel', 176, 1 ],
+            [ 'bpm', 176, 61 ],
 
             #  Module bindings
             #  Binding names should have the format class_name.member_name
@@ -145,8 +146,8 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                 return
 
             #  ᕙ[･۝･]ᕗ  Calculate impact
-            if(self.__noimpact): impact = 80 / self.__weight
-            else: impact = message[2] / self.__weight
+            if(self.__noimpact): impact = self.__weight
+            else: impact = ((message[2] / 127) * 1.01) * self.__weight
 
             #  ༼つ ◕_◕ ༽つ  Play saw note
             if message[0] == settings['sawtooth_on']:
@@ -302,29 +303,57 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
     with stream: await exit_event.wait()
 
 ##################################################################
-#  Gate coroutine
-#  Also controls exiting program
+#  Control coroutine
+#  Sends exit event when keyboard interrupt detected
 ##################################################################
-async def ppms_gate(exit_event, gate, note_queue, patches):
+async def ppms_control(exit_event, gate, note_queue, patches):
     while True:
-        signal = None
+        #  bpm signal code here
         try:
-            signal = gate.get(block=True, timeout=0.1)
-            patches.send_gate(signal)
+            pass
+        except KeyboardInterrupt:
+            break
+        except:
+            pass
+
+        #  Check for a gate signal
+        gate_signal = None
+        try:
+            gate_signal = gate.get(block=True, timeout=0.01)
+            #gate_signal = gate.get_nowait()
+            #print(gate_signal['status'])
+            patches.send_gate(gate_signal)
             gate.task_done()
         except KeyboardInterrupt:
             break
         except:
             pass
+
         #  If there was a gate signal, 
-        if signal is not None:
-            try:
-                note_queue.put(signal)
-            except KeyboardInterrupt:
-                break
-            except:
-                pass
-    exit_event.set()  #  Send exit event
+        try:
+            if gate_signal is not None:
+                #print(gate_signal['status'])
+                # if on, add to gate and put into note queue
+                note_queue.put(gate_signal)
+                # if off, do nothing now
+        except KeyboardInterrupt:
+            break
+        except:
+            pass
+
+        #  Check all gates
+        try:
+            #  if switched to idle, remove then turn off note
+            #  (off cmd sent to note_queue)
+            pass
+        except KeyboardInterrupt:
+            break
+        except:
+            pass
+    #  End while True
+
+    #  While loop broken, send exit event
+    exit_event.set()
 
 ##################################################################
 #  Main function, starts coroutines
@@ -353,13 +382,13 @@ async def main(settings, port, device, noimpact, verbose):
     out_task = asyncio.create_task(
         ppms_output(exit_event, device, settings, patches, note_queue, osc)
     )
-    gate_task = asyncio.create_task(
-        ppms_gate(exit_event, gate, note_queue, patches)
+    control_task = asyncio.create_task(
+        ppms_control(exit_event, gate, note_queue, patches)
     )
 
     await in_task
     await out_task
-    await gate_task
+    await control_task
 
 ##################################################################
 #  Start program
@@ -387,7 +416,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-c", "--config", dest="config", default="settings.json",
-        metavar="file", type=str, help="Config file to load. Default: %(default)s"
+        metavar="file", type=str, help="Configuration file to load. Default: %(default)s"
     )
     parser.add_argument(
         "--noimpact", dest="noimpact", default=False,
