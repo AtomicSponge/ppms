@@ -131,11 +131,22 @@ class patchboard(object):
     #  @return Modified signal data
     def patch(self, signal):
         for module in self.__patches:
+            #print(module)
             try:
                 signal = module.process(module, signal)
             except:
                 pass
         return signal
+
+    ##  Set mod wheel value
+    #  @param self Object pointer
+    #  @param value Mod value
+    def set_mod(self, value):
+        for module in self.__patches:
+            try:
+                module.set_mod(module, value)
+            except:
+                pass
 
     ##  Send gate signal.
     #  @param self Object pointer
@@ -154,40 +165,47 @@ class synthmod(object):
     ##  Midi max
     MIDI_MAX = 127
 
-    ##  Return the gate status.
-    #  Only returns idle state.
+    ##  Gate
+    gate_map = dict()
+
+    ##
     #  @param self Object pointer
-    #  @param note Note to check status on
-    def gate_status(self, note):
-        return "idle"
-
-##
-class bpm_control(object):
-    pass
-
-##
-class mod_control(object):
-    ##  Use mod control
-    USE_MOD = False
-
-##  Gate part for synth modules.
-class gate_control(bpm_control):
-    ##  State dictionary
-    state = dict()
+    def process(self, signal):
+        pass
 
     ## Process gate signal.
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
-        print(gate)
-        # state = note | gate(on/off) | state
-        # if msg on add to state
-        # if msg off set gate to off
-        # if gate == off AND state == idle, remove
+        #print(gate)
+        #  If signal on, create new item in gate
+        if gate['status'] == "on":
+            #gate_map.update({ signal['note']: 'on' })
+            print("on")
+        #  If signal off, set for removal
+        if gate['status'] == "off":
+            #gate_map.update({ signal['note']: 'idle' })
+            print("off")
+
+    ##
+    #  @param self Object pointer
+    #  @return True if idle, false if not
+    def gate_proc(self, note):
+        pass
 
     ##  Return the gate status.
-    #  Returns the state for the passed note.
+    #  .
     #  @param self Object pointer
     #  @param note Note to check status on
     def gate_status(self, note):
-        return "wip"
+        try:
+            return gate_map.get(note)
+        except:
+            return "idle"
+
+##  Mod wheel control part.
+class mod_control(object):
+    MOD_VALUE = 0
+
+    def set_mod(self, value):
+        self.MOD_VALUE = value

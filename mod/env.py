@@ -6,10 +6,10 @@
 #  See LICENSE.md for copyright information.
 #
 
-from .parts import synthmod, gate_control
+from .parts import synthmod
 
 ##  Envelope - ADSR
-class envelope(gate_control, synthmod):
+class envelope(synthmod):
     __attack = 0
     __decay = 0
     __sustain = 0

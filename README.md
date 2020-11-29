@@ -37,9 +37,7 @@ You can select which waveform is generated using MIDI program change.
 
 ### Synth Modules
 
-### BPM Control
-
-### Gate Control
+### Mod Wheel
 
 -----
 

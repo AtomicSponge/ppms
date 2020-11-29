@@ -24,7 +24,7 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.parts import oscillator, patchboard
+from mod.parts import oscillator, patchboard, synthmod
 
 ##################################################################
 #  Function to return a map of the default settings
@@ -88,9 +88,10 @@ def load_ppms_modules(settings, patches):
             mod = importlib.import_module(load_module)
             #  Find the class and add to patches
             for member_name, obj in inspect.getmembers(mod):
-                if inspect.isclass(obj):
+                #  Make sure we're loading a class from the module
+                if inspect.isclass(obj) and obj.__module__ == mod.__name__:
                     patches.add_module(obj)
-                    print("Loaded module: ", mod.__name__)
+                    print("Loaded module: ", obj.__module__)
                     break
         except:
             #  Report error and continue
@@ -196,6 +197,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                     #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
+                        patches.set_mod(settings['mod_value'])
                         return
                     #elif:
                         #return
@@ -308,14 +310,6 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
 ##################################################################
 async def ppms_control(exit_event, gate, note_queue, patches):
     while True:
-        #  bpm signal code here
-        try:
-            pass
-        except KeyboardInterrupt:
-            break
-        except:
-            pass
-
         #  Check for a gate signal
         gate_signal = None
         try:
