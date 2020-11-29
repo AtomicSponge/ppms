@@ -306,6 +306,7 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
 
 ##################################################################
 #  Control coroutine
+#  Processes the gate
 #  Sends exit event when keyboard interrupt detected
 ##################################################################
 async def ppms_control(exit_event, gate, note_queue, patches):
