@@ -8,9 +8,9 @@
 
 [Python](https://www.python.org/) script that simulates a basic [modular synthesizer](https://en.wikipedia.org/wiki/Modular_synthesizer).  Requires a separate [MIDI](https://en.wikipedia.org/wiki/MIDI) input device, however a [virtual](https://vmpk.sourceforge.io/) one may be used on supported platforms.  Generates samples based on [waveforms](https://en.wikipedia.org/wiki/Waveform) and processes them through modules.  Allows control of the modules through MIDI messages.
 
-### Requirements
+### Package Requirements
 
-Requires the following packages to be installed:
+Requires the following Python packages to be installed:
 - [numpy](https://numpy.org/)
 - [scipy](https://www.scipy.org/)
 - [sounddevice](https://pypi.org/project/sounddevice/)
