@@ -24,7 +24,7 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.parts import oscillator, patchboard, synthmod
+from mod.parts import oscillator, patchboard
 
 ##################################################################
 #  Function to return a map of the default settings
@@ -90,9 +90,11 @@ def load_ppms_modules(settings, patches):
             for member_name, obj in inspect.getmembers(mod):
                 #  Make sure we're loading a class from the module
                 if inspect.isclass(obj) and obj.__module__ == mod.__name__:
-                    patches.add_module(obj)
-                    print("Loaded module: ", obj.__module__)
-                    break
+                    #  Make sure the class extends synthmod base
+                    if obj.IS_SYNTHMOD == "IS_SYNTHMOD":
+                        patches.add_module(obj)
+                        print("Loaded module: ", obj.__module__)
+                        break
         except:
             #  Report error and continue
             print("Failed loading module: ", load_module)

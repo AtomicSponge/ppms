@@ -160,6 +160,8 @@ class patchboard(object):
 
 ##  Synth module base class.
 class synthmod(object):
+    ##  Flag to check if valid synth module
+    IS_SYNTHMOD = "IS_SYNTHMOD"
     ##  Midi min
     MIDI_MIN = 0
     ##  Midi max
