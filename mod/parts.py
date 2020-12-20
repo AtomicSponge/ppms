@@ -53,37 +53,56 @@ class oscillator(object):
         if pitch_bend != 0: note_freq = note_freq * pitch_bend
         return note_freq
 
+    ##  Return data
+    #  @param self Object pointer
+    #  @param note Note to play
+    #  @param pitch_bend Pitch bend data
+    #  @param frame_size Amount of data to generate
+    #  @param time_data Position in waveform
+    #  @return data
+    def __OSCFUNC(self, note, pitch_bend, frame_size, time_data):
+        return (2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend)
+            * self.__calc_period(frame_size, time_data))
+
     ##  Return a sawtooth wave sample.
     #  @param self Object pointer
     #  @param note Note to play
-    #  @param time_data
+    #  @param pitch_bend Pitch bend data
+    #  @param frame_size Amount of data to generate
+    #  @param time_data Position in waveform
     #  @return Sawtooth sample
     def sawtooth(self, note, pitch_bend, frame_size, time_data):
-        return signal.sawtooth(2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend) * self.__calc_period(frame_size, time_data))
+        return signal.sawtooth(self.__OSCFUNC(note, pitch_bend, frame_size, time_data))
 
     ##  Return a triangle wave sample.
     #  @param self Object pointer
     #  @param note Note to play
-    #  @param time_data
+    #  @param pitch_bend Pitch bend data
+    #  @param frame_size Amount of data to generate
+    #  @param time_data Position in waveform
     #  @return Triangle sample
     def triangle(self, note, pitch_bend, frame_size, time_data):
-        return signal.sawtooth(2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend) * self.__calc_period(frame_size, time_data), 0.5)
+        return signal.sawtooth(self.__OSCFUNC(note, pitch_bend, frame_size, time_data), 0.5)
 
     ##  Return a square wave sample.
     #  @param self Object pointer
     #  @param note Note to play
-    #  @param time_data
+    #  @param pitch_bend Pitch bend data
+    #  @param frame_size Amount of data to generate
+    #  @param time_data Position in waveform
     #  @return Square sample
     def square(self, note, pitch_bend, frame_size, time_data):
-        return signal.square(2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend) * self.__calc_period(frame_size, time_data))
+        return signal.square(self.__OSCFUNC(note, pitch_bend, frame_size, time_data))
 
     ##  Return a sine wave sample.
     #  @param self Object pointer
     #  @param note Note to play
-    #  @param time_data
+    #  @param pitch_bend Pitch bend data
+    #  @param frame_size Amount of data to generate
+    #  @param time_data Position in waveform
     #  @return Sine sample
     def sine(self, note, pitch_bend, frame_size, time_data):
-        return np.sin(2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend) * self.__calc_period(frame_size, time_data))
+        return np.sin(self.__OSCFUNC(note, pitch_bend, frame_size, time_data))
 
 ##  Creates "patches" of "synth modules" to process the signal.
 class patchboard(object):
@@ -158,6 +177,15 @@ class patchboard(object):
             except:
                 pass
 
+    ##  Update gates for all modules
+    #  @param self Object pointer
+    def update_gate(self):
+        for module in self.__patches:
+            try:
+                module.gate_update(module)
+            except:
+                pass
+
 ##  Synth module base class.
 class synthmod(object):
     ##  Flag to check if valid synth module
@@ -192,7 +220,7 @@ class synthmod(object):
     ##
     #  @param self Object pointer
     #  @return True if idle, false if not
-    def gate_proc(self, note):
+    def gate_update(self):
         pass
 
     ##  Return the gate status.

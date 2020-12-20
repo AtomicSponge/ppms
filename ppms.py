@@ -86,7 +86,7 @@ def load_ppms_modules(settings, patches):
     for load_module in settings['modules']:
         try:
             mod = importlib.import_module(load_module)
-            #  Find the class and add to patches
+            #  Search all objects in the loaded module
             for member_name, obj in inspect.getmembers(mod):
                 #  Make sure we're loading a class from the module
                 if inspect.isclass(obj) and obj.__module__ == mod.__name__:
@@ -342,7 +342,7 @@ async def ppms_control(exit_event, gate, note_queue, patches):
         try:
             #  if switched to idle, remove then turn off note
             #  (off cmd sent to note_queue)
-            pass
+            patches.update_gate()
         except KeyboardInterrupt:
             break
         except:
