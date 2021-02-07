@@ -299,10 +299,16 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
         if(time_index > sys.maxsize - frame_size - frame_size): time_index = 0
 
     #  Set the audio callback
-    stream = sd.OutputStream(
-        callback=audio_callback, channels=1, dtype=np.float32,
-        samplerate=settings['sample_rate']
-    )
+    if device is not None:
+        stream = sd.OutputStream(
+            callback=audio_callback, channels=1, dtype=np.float32,
+            device=device, samplerate=settings['sample_rate']
+        )
+    else:
+        stream = sd.OutputStream(
+            callback=audio_callback, channels=1, dtype=np.float32,
+            samplerate=settings['sample_rate']
+        )
     #  Run until exit event
     with stream: await exit_event.wait()
 
@@ -420,6 +426,10 @@ if __name__ == "__main__":
         action="store_true", help="Detect presets."
     )
     parser.add_argument(
+        "--list_audio", dest="list_audio", default=False,
+        action="store_true", help="Display a list of available audio devices and exit."
+    )
+    parser.add_argument(
         "--defaults", dest="set_defaults", default=False,
         action="store_true", help="Generate default settings.json file and exit."
     )
@@ -436,6 +446,11 @@ if __name__ == "__main__":
         except IOError:
             print("Error creating settings.json!  Exiting...")
             sys.exit(1)
+
+    #  If --list_audio passed, show available audio devices and exit
+    if(args.list_audio):
+        print(sd.query_devices())
+        sys.exit(0)
 
     print("Starting PPMS.  Press Control-C to exit.")
 
