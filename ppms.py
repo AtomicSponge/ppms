@@ -312,13 +312,21 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
 #  Sends exit event when keyboard interrupt detected
 ##################################################################
 async def ppms_control(exit_event, gate, note_queue, patches):
+    gate_list = list()
+
     while True:
         #  Check for a gate signal
         gate_signal = None
         try:
+            #  Get gate signal
             gate_signal = gate.get(block=True, timeout=0.01)
-            #gate_signal = gate.get_nowait()
-            #print(gate_signal['status'])
+            #  If it's an on signal...
+            if gate_signal['status'] == "on":
+                #  Add to gate map
+                gate_list.append(gate_signal)
+                #  Then send on signal to oscillator
+            note_queue.put(gate_signal)
+            #  Now send it to all modules
             patches.send_gate(gate_signal)
             gate.task_done()
         except KeyboardInterrupt:
@@ -326,19 +334,7 @@ async def ppms_control(exit_event, gate, note_queue, patches):
         except:
             pass
 
-        #  If there was a gate signal, 
-        try:
-            if gate_signal is not None:
-                #print(gate_signal['status'])
-                # if on, add to gate and put into note queue
-                note_queue.put(gate_signal)
-                # if off, do nothing now
-        except KeyboardInterrupt:
-            break
-        except:
-            pass
-
-        #  Check all gates
+        #  Now check the status of all gates
         try:
             #  if switched to idle, remove then turn off note
             #  (off cmd sent to note_queue)

@@ -203,7 +203,7 @@ class synthmod(object):
     def process(self, signal):
         pass
 
-    ## Process gate signal.
+    ##  Process gate signal.
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
@@ -217,9 +217,9 @@ class synthmod(object):
             #gate_map.update({ signal['note']: 'idle' })
             print("off")
 
-    ##
+    ##  Process gate updates
+    #  Just a pass here, override to define
     #  @param self Object pointer
-    #  @return True if idle, false if not
     def gate_update(self):
         pass
 
