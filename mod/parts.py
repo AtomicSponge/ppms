@@ -209,22 +209,15 @@ class gate_control(metaclass=ABCMeta):
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
-        print(self)
-        #print(gate)
-        #print(gate['status'])
         #  If signal on, create new item in gate
         if gate['status'] == "on":
             self._gate_list.append(gate)
-            print(len(self._gate_list))
-            #print("on")
         #  If signal off, set for removal
         if gate['status'] == "off":
             try:
                 self._gate_list.remove(next(item for item in self._gate_list if item['note'] == gate['note']))
             except ValueError:
                 print("oh shit")
-            print(len(self._gate_list))
-            #print("off")
 
     ##  Process gate updates
     #  Just a pass here, override to define
