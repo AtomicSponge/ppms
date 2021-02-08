@@ -332,7 +332,7 @@ async def ppms_control(exit_event, gate, note_queue, patches):
                 #  Add to gate map
                 gate_list.append(gate_signal)
                 #  Then send on signal to oscillator
-            note_queue.put(gate_signal)
+            note_queue.put(gate_signal) # indent this later
             #  Now send it to all modules
             patches.send_gate(gate_signal)
             gate.task_done()
@@ -343,9 +343,9 @@ async def ppms_control(exit_event, gate, note_queue, patches):
 
         #  Now check the status of all gates
         try:
-            #  if switched to idle, remove then turn off note
-            #  (off cmd sent to note_queue)
+            #  Run update for each module's internal gate
             patches.update_gate()
+            #  If all are idle, remove note from oscillator
         except KeyboardInterrupt:
             break
         except:
