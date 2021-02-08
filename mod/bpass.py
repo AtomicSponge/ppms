@@ -6,17 +6,15 @@
 #  See LICENSE.md for copyright information.
 #
 
-from .parts import synthmod, gate_control
+from .parts import synthmod
 import numpy as np
 
 ##  Band-pass filter.
-class band_pass(synthmod, gate_control):
+class band_pass(synthmod):
     ##  Store high pass amount
     __high_pass = 0
     ##  Store low pass amount
     __low_pass = 0
-
-    _gate_list = list()
 
     ## Process low pass and high pass filters
     #  @param self Object pointer
