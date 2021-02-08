@@ -18,6 +18,7 @@
 import math
 import numpy as np
 from scipy import signal
+from abc import ABCMeta, abstractmethod
 
 ##  Generates samples of different waveforms.
 class oscillator(object):
@@ -161,11 +162,10 @@ class patchboard(object):
     #  @param self Object pointer
     #  @param value Mod value
     def set_mod(self, value):
-        for module in self.__patches:
-            try:
-                module.set_mod(module, value)
-            except:
-                pass
+        try:
+            mod_control.set_mod(value)
+        except:
+            pass
 
     ##  Send gate signal.
     #  @param self Object pointer
@@ -187,39 +187,51 @@ class patchboard(object):
                 pass
 
 ##  Synth module base class.
-class synthmod(object):
+class synthmod(metaclass=ABCMeta):
     ##  Flag to check if valid synth module
-    IS_SYNTHMOD = "IS_SYNTHMOD"
+    IS_SYNTHMOD = True
     ##  Midi min
     MIDI_MIN = 0
     ##  Midi max
     MIDI_MAX = 127
 
-    ##  Gate
-    gate_map = dict()
-
     ##
     #  @param self Object pointer
+    @abstractmethod
     def process(self, signal):
         pass
+
+##
+class gate_control(metaclass=ABCMeta):
+    __gate_list = list()
+    #def __init__(self):
+        #self.__gate_list = list()
 
     ##  Process gate signal.
     #  @param self Object pointer
     #  @param gate Gate signal
     def gate_signal(self, gate):
+        print(self)
         #print(gate)
+        #print(gate['status'])
         #  If signal on, create new item in gate
         if gate['status'] == "on":
-            #gate_map.update({ signal['note']: 'on' })
-            print("on")
+            self.__gate_list.append(gate)
+            print(len(self.__gate_list))
+            #print("on")
         #  If signal off, set for removal
         if gate['status'] == "off":
-            #gate_map.update({ signal['note']: 'idle' })
-            print("off")
+            try:
+                self.__gate_list.remove(next(item for item in self.__gate_list if item['note'] == gate['note']))
+            except ValueError:
+                print("oh shit")
+            print(len(self.__gate_list))
+            #print("off")
 
     ##  Process gate updates
     #  Just a pass here, override to define
     #  @param self Object pointer
+    #@abstractmethod
     def gate_update(self):
         pass
 
@@ -229,13 +241,14 @@ class synthmod(object):
     #  @param note Note to check status on
     def gate_status(self, note):
         try:
-            return gate_map.get(note)
+            return self.__gate_list.index(next(item for item in self.__gate_list if item['note'] == gate['note']))['status']
         except:
             return "idle"
 
 ##  Mod wheel control part.
-class mod_control(object):
+class mod_control(metaclass=ABCMeta):
     MOD_VALUE = 0
 
-    def set_mod(self, value):
-        self.MOD_VALUE = value
+    @classmethod
+    def set_mod(cls, value):
+        cls.MOD_VALUE = value

@@ -91,13 +91,14 @@ def load_ppms_modules(settings, patches):
                 #  Make sure we're loading a class from the module
                 if inspect.isclass(obj) and obj.__module__ == mod.__name__:
                     #  Make sure the class extends synthmod base
-                    if obj.IS_SYNTHMOD == "IS_SYNTHMOD":
+                    if obj.IS_SYNTHMOD:
                         patches.add_module(obj)
                         print("Loaded module: ", obj.__module__)
                         break
         except:
             #  Report error and continue
             print("Failed loading module: ", load_module)
+    importlib.invalidate_caches()
 
 ##################################################################
 #  Function to load module parameter data
