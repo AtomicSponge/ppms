@@ -203,9 +203,7 @@ class synthmod(metaclass=ABCMeta):
 
 ##
 class gate_control(metaclass=ABCMeta):
-    __gate_list = list()
-    #def __init__(self):
-        #self.__gate_list = list()
+    _gate_list = list()
 
     ##  Process gate signal.
     #  @param self Object pointer
@@ -216,22 +214,22 @@ class gate_control(metaclass=ABCMeta):
         #print(gate['status'])
         #  If signal on, create new item in gate
         if gate['status'] == "on":
-            self.__gate_list.append(gate)
-            print(len(self.__gate_list))
+            self._gate_list.append(gate)
+            print(len(self._gate_list))
             #print("on")
         #  If signal off, set for removal
         if gate['status'] == "off":
             try:
-                self.__gate_list.remove(next(item for item in self.__gate_list if item['note'] == gate['note']))
+                self._gate_list.remove(next(item for item in self._gate_list if item['note'] == gate['note']))
             except ValueError:
                 print("oh shit")
-            print(len(self.__gate_list))
+            print(len(self._gate_list))
             #print("off")
 
     ##  Process gate updates
     #  Just a pass here, override to define
     #  @param self Object pointer
-    #@abstractmethod
+    @abstractmethod
     def gate_update(self):
         pass
 
@@ -241,7 +239,7 @@ class gate_control(metaclass=ABCMeta):
     #  @param note Note to check status on
     def gate_status(self, note):
         try:
-            return self.__gate_list.index(next(item for item in self.__gate_list if item['note'] == gate['note']))['status']
+            return self._gate_list.index(next(item for item in self._gate_list if item['note'] == gate['note']))['status']
         except:
             return "idle"
 

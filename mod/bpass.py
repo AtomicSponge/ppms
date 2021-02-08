@@ -16,7 +16,7 @@ class band_pass(synthmod, gate_control):
     ##  Store low pass amount
     __low_pass = 0
 
-    #__gate_list = list()
+    _gate_list = list()
 
     ## Process low pass and high pass filters
     #  @param self Object pointer

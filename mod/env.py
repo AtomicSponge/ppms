@@ -15,7 +15,7 @@ class envelope(synthmod, gate_control):
     __sustain = 0
     __release = 0
 
-    #__gate_list = list()
+    _gate_list = list()
 
     ## Process envelope
     #  @param self Object pointer
