@@ -15,6 +15,6 @@ class mwtest_module(synthmod, mod_control):
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, signal):
-        if self.MOD_VALUE > 0:
-            print("Mod wheel: ", self.MOD_VALUE)
+        if self.get_mod_value() > 0:
+            print("Mod wheel: ", self.get_mod_value())
         return signal

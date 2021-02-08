@@ -200,7 +200,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                     #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
-                        patches.set_mod(settings['mod_value'])
+                        patches.set_mod_value(settings['mod_value'])
                         return
                     #elif:
                         #return

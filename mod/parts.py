@@ -161,9 +161,9 @@ class patchboard(object):
     ##  Set mod wheel value
     #  @param self Object pointer
     #  @param value Mod value
-    def set_mod(self, value):
+    def set_mod_value(self, value):
         try:
-            mod_control.set_mod(value)
+            mod_control.set_mod_value(value)
         except:
             pass
 
@@ -238,8 +238,12 @@ class gate_control(metaclass=ABCMeta):
 
 ##  Mod wheel control part.
 class mod_control(metaclass=ABCMeta):
-    MOD_VALUE = 0
+    __MOD_VALUE = 0
 
     @classmethod
-    def set_mod(cls, value):
-        cls.MOD_VALUE = value
+    def set_mod_value(cls, value):
+        cls.__MOD_VALUE = value
+
+    @classmethod
+    def get_mod_value(cls):
+        return cls.__MOD_VALUE
