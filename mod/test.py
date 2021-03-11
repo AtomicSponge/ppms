@@ -17,7 +17,7 @@ class test_module(synthmod):
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(self, signal):
+    def process(self, note, signal):
         if self.__test_value > self.MIDI_MIN:
             if self.__test_value == self.MIDI_MAX:
                 print("Text value at max: ", self.__test_value)

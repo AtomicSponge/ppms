@@ -20,7 +20,7 @@ class band_pass(synthmod):
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(self, signal):
+    def process(self, note, signal):
         #  Do low pass
         if self.__low_pass > self.MIDI_MIN:
             filter_amnt = 1 - (self.__low_pass / self.MIDI_MAX)

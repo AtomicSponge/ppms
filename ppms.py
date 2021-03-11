@@ -202,6 +202,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                         settings['mod_value'] = message[2]
                         patches.set_mod_value(settings['mod_value'])
                         return
+                    #  Add another binding
                     #elif:
                         #return
                     #  Find the loaded module and process its control
@@ -289,7 +290,7 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
                 note_data = note_map.get(note)
                 #  volume * impact * waveform(note, pitch_bend, frame_size, time_index)
                 audio_signal = np.add(audio_signal, (settings['master_volume'] * note_data[1]) *
-                    patches.patch(getattr(osc, note_data[0])(note, pitch_bend, frame_size, time_index)))
+                    patches.patch(note, getattr(osc, note_data[0])(note, pitch_bend, frame_size, time_index)))
             except:
                 pass  #  On errors generate nothing
         outdata[:] = audio_signal
@@ -319,33 +320,16 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
 #  Sends exit event when keyboard interrupt detected
 ##################################################################
 async def ppms_control(exit_event, gate, note_queue, patches):
-    gate_list = list()
-
     while True:
         #  Check for a gate signal
         gate_signal = None
         try:
-            #  Get gate signal
+            #  Get gate signal from input
             gate_signal = gate.get(block=True, timeout=0.01)
-            #  If it's an on signal...
-            if gate_signal['status'] == "on":
-                #  Add to gate map
-                gate_list.append(gate_signal)
-                #  Then send on signal to oscillator
-            note_queue.put(gate_signal) # indent this later
-            #  Now send it to all modules
-            patches.send_gate(gate_signal)
+            #  Send gate signal to output
+            note_queue.put(gate_signal)
+            #  Done
             gate.task_done()
-        except KeyboardInterrupt:
-            break
-        except:
-            pass
-
-        #  Now check the status of all gates
-        try:
-            #  Run update for each module's internal gate
-            patches.update_gate()
-            #  If all are idle, remove note from oscillator
         except KeyboardInterrupt:
             break
         except:

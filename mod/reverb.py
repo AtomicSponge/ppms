@@ -18,7 +18,7 @@ class reverberation(synthmod):
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(self, signal):
+    def process(self, note, signal):
         if self.__reverb > self.MIDI_MIN:
             signal += np.roll(signal, int(signal.size * (self.__reverb / self.MIDI_MAX)))
         return signal

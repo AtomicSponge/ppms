@@ -13,6 +13,8 @@
 #  See LICENSE.md for copyright information.
 #  See README.md for usage information.
 #
+#  This file implements the various parts used for ppms
+#
 ##################################################################
 
 import math
@@ -54,7 +56,8 @@ class oscillator(object):
         if pitch_bend != 0: note_freq = note_freq * pitch_bend
         return note_freq
 
-    ##  Return data
+    ##  Calculate data for oscillator.
+    #  This just cleans up the other function calls a bit.
     #  @param self Object pointer
     #  @param note Note to play
     #  @param pitch_bend Pitch bend data
@@ -149,11 +152,10 @@ class patchboard(object):
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def patch(self, signal):
+    def patch(self, note, signal):
         for module in self.__patches:
-            #print(module)
             try:
-                signal = module.process(module, signal)
+                signal = module.process(module, note, signal)
             except:
                 pass
         return signal
@@ -195,46 +197,23 @@ class synthmod(metaclass=ABCMeta):
     ##  Midi max
     MIDI_MAX = 127
 
-    ##
+    ##  Synth module process member.
+    #  Override this to implement a custom process method.
+    #  Raises not implemented error if not overridden
     #  @param self Object pointer
+    #  @param note Note to be played
+    #  @param signal Audio signal
     @abstractmethod
-    def process(self, signal):
-        pass
+    def process(self, note, signal):
+        raise NotImplementedError("Must override process method in synth module")
 
-##
-class gate_control(metaclass=ABCMeta):
-    _gate_list = list()
-
-    ##  Process gate signal.
+    ##  Use A440 to calculate the note frequency.
     #  @param self Object pointer
-    #  @param gate Gate signal
-    def gate_signal(self, gate):
-        #  If signal on, create new item in gate
-        if gate['status'] == "on":
-            self._gate_list.append(gate)
-        #  If signal off, set for removal
-        if gate['status'] == "off":
-            try:
-                self._gate_list.remove(next(item for item in self._gate_list if item['note'] == gate['note']))
-            except ValueError:
-                print("oh shit")
-
-    ##  Process gate updates
-    #  Just a pass here, override to define
-    #  @param self Object pointer
-    @abstractmethod
-    def gate_update(self):
-        pass
-
-    ##  Return the gate status.
-    #  .
-    #  @param self Object pointer
-    #  @param note Note to check status on
-    def gate_status(self, note):
-        try:
-            return self._gate_list.index(next(item for item in self._gate_list if item['note'] == gate['note']))['status']
-        except:
-            return "idle"
+    #  @param note Note to calculate
+    #  @return The calculated frequency
+    @classmethod
+    def calc_frequency(self, note):
+        return math.pow(2, (note - 69) / 12) * 440
 
 ##  Mod wheel control part.
 class mod_control(metaclass=ABCMeta):

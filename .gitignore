@@ -1,21 +1,12 @@
-#  Ignore vs code stuffs
+#  Ignore code stuffs
 ppms.code-workspace
-
-#  Ignore backup
-bak/
-run_backup.bat
-
+#  Ignore backups
+*_bak/
 #  Ignore documentation
 docs/
-
 #  Ignore python stuffs
 __pycache__/
-
 #  Ignore _tests
 _tests/
-
-#  Ignore presets
-presets/*.json
-
-#  Ignore settings.json
-settings.json
+#  Ignore json files
+*.json

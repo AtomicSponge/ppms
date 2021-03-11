@@ -6,30 +6,32 @@
 #  See LICENSE.md for copyright information.
 #
 
-from .parts import synthmod, gate_control
+import numpy as np
+from .parts import synthmod
 
 ##  Envelope - ADSR
-class envelope(synthmod, gate_control):
+class envelope(synthmod):
     __attack = 0
     __decay = 0
     __sustain = 0
     __release = 0
 
-    _gate_list = list()
+    __envelope = np.zeros(shape=(10,1), dtype=np.float32)
 
-    ## Process envelope
+    ##  Generate the envelope signal.
+    #  This is called after a parameter is changed.
+    #  @param self Object pointer
+    def __generate_envelope(self):
+        pass
+
+    ## Process envelope.
     #  @param self Object pointer
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(self, signal):
-        if self.__attack > self.MIDI_MIN:
-            print("A:", self.__attack)
-        if self.__decay > self.MIDI_MIN:
-            print("D:", self.__decay)
-        if self.__sustain > self.MIDI_MIN:
-            print("S:", self.__sustain)
-        if self.__release > self.MIDI_MIN:
-            print("R:", self.__release)
+    def process(self, note, signal):
+        #print("note: ", note)
+        #print("freq: ", self.calc_frequency(note))
+        #print("period: ", 1 / self.calc_frequency(note))
         return signal
 
     ##  Build an array of save data for the module.
@@ -49,21 +51,25 @@ class envelope(synthmod, gate_control):
     #  @param val New value to set
     def set_attack(self, val):
         self.__attack = val
+        self.__generate_envelope(self)
 
     ## Set decay parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_decay(self, val):
         self.__decay = val
+        self.__generate_envelope(self)
 
     ## Set sustain parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_sustain(self, val):
         self.__sustain = val
+        self.__generate_envelope(self)
 
     ## Set release parameter.
     #  @param self Object pointer
     #  @param val New value to set
     def set_release(self, val):
         self.__release = val
+        self.__generate_envelope(self)
