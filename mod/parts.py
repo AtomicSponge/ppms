@@ -19,34 +19,32 @@
 
 import math
 import numpy as np
+from typing import Final
 from scipy import signal
 from abc import ABCMeta, abstractmethod
 
-#  Define the A440 algorithm as a lambda expression
-A440 = lambda note: math.pow(2, (note - 69) / 12) * 440
+##  Algorithms for use by ppms.
+#  Store some lambda expressions for use elsewhere.
+class ppms_algs(object):
+    #  Define the A440 algorithm
+    A440 = lambda note: math.pow(2, (note - 69) / 12) * 440
 
 ##  Generates samples of different waveforms.
 class oscillator(object):
-    ##  Initialize and generate sample data.
+    ##  Initialize and store sample rate.
     #  @param self Object pointer
     #  @param rate Sample rate
     def __init__(self, rate):
         ##  Store the sample rate
-        self.__frequency = rate
+        self.__sample_rate: Final = rate
 
-    ##  Use A440 to calculate the note frequency.
-    #  @param self Object pointer
-    #  @param note Note to calculate
-    #  @return The calculated frequency
-    def __calc_frequency(self, note): return A440(note)
-
-    ##  Calculate period.
+    ##  Calculate sample data.
     #  @param self Object pointer
     #  @param frame_size Amount to generate
     #  @param time_data Position in time
-    #  @return Period data
-    def __calc_period(self, frame_size, time_data):
-        t = (time_data + np.arange(frame_size)) / self.__frequency
+    #  @return Generated sample data
+    def __calc_sample_data(self, frame_size, time_data):
+        t = ((time_data + np.arange(frame_size)) / self.__sample_rate).reshape(-1, 1)
         return t.reshape(-1, 1)
 
     ##  Calculate pitch bend.
@@ -58,17 +56,17 @@ class oscillator(object):
         if pitch_bend != 0: note_freq = note_freq * pitch_bend
         return note_freq
 
-    ##  Calculate data for oscillator.
+    ##  Calculate phase shift data for oscillator.
     #  This just cleans up the other function calls a bit.
     #  @param self Object pointer
     #  @param note Note to play
     #  @param pitch_bend Pitch bend data
     #  @param frame_size Amount of data to generate
     #  @param time_data Position in waveform
-    #  @return data
+    #  @return Generated phase shift data
     def __OSCFUNC(self, note, pitch_bend, frame_size, time_data):
-        return (2 * np.pi * self.__check_pitch_bend(self.__calc_frequency(note), pitch_bend)
-            * self.__calc_period(frame_size, time_data))
+        return (2 * np.pi * self.__check_pitch_bend(ppms_algs.A440(note), pitch_bend)
+            * self.__calc_sample_data(frame_size, time_data))
 
     ##  Return a sawtooth wave sample.
     #  @param self Object pointer
@@ -162,7 +160,7 @@ class patchboard(object):
                 pass
         return signal
 
-    ##  Set mod wheel value
+    ##  Set mod wheel value.
     #  @param self Object pointer
     #  @param value Mod value
     def set_mod_value(self, value):
@@ -171,50 +169,24 @@ class patchboard(object):
         except:
             pass
 
-    ##  Send gate signal.
-    #  @param self Object pointer
-    #  @param gate Gate signal
-    def send_gate(self, gate):
-        for module in self.__patches:
-            try:
-                module.gate_signal(module, gate)
-            except:
-                pass
-
-    ##  Update gates for all modules
-    #  @param self Object pointer
-    def update_gate(self):
-        for module in self.__patches:
-            try:
-                module.gate_update(module)
-            except:
-                pass
-
 ##  Synth module base class.
 class synthmod(metaclass=ABCMeta):
     ##  Flag to check if valid synth module
-    IS_SYNTHMOD = True
+    IS_SYNTHMOD: Final = True
     ##  Midi min
-    MIDI_MIN = 0
+    MIDI_MIN: Final = 0
     ##  Midi max
-    MIDI_MAX = 127
+    MIDI_MAX: Final = 127
 
-    ##  Synth module process member.
+    ##  Synth module process member for modifying signal.
     #  Override this to implement a custom process method.
-    #  Raises not implemented error if not overridden
+    #  Raises not implemented error if not overridden.
     #  @param self Object pointer
     #  @param note Note to be played
     #  @param signal Audio signal
     @abstractmethod
     def process(self, note, signal):
         raise NotImplementedError("Must override process method in synth module")
-
-    ##  Use A440 to calculate the note frequency.
-    #  @param self Object pointer
-    #  @param note Note to calculate
-    #  @return The calculated frequency
-    @classmethod
-    def calc_frequency(self, note): return A440(note)
 
 ##  Mod wheel control part.
 class mod_control(metaclass=ABCMeta):
