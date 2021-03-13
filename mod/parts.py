@@ -121,10 +121,8 @@ class patchboard(object):
     #  @param self Object pointer
     #  @param mod Synth module to add
     def add_module(self, mod):
-        try:
-            self.__patches.append(mod)
-        except:
-            raise RuntimeError("Error adding module to patchboard")
+        try: self.__patches.append(mod)
+        except: raise RuntimeError("Error adding module to patchboard")
 
     ##  Clear all loaded modules.
     #  @param self Object pointer
@@ -146,10 +144,8 @@ class patchboard(object):
     def save_data(self):
         data = []
         for module in self.__patches:
-            try:
-                data += module.save_data(module)
-            except:
-                pass
+            try: data += module.save_data(module)
+            except: pass
         return data
 
     ##  Process modules in order.
@@ -158,10 +154,9 @@ class patchboard(object):
     #  @return Modified signal data
     def patch(self, note, signal):
         for module in self.__patches:
-            try:
-                signal = module.process(module, note, signal)
-            except:
-                pass
+            try: signal = module.process(module, note, signal)
+            except NotImplementedError as e: raise
+            except: pass
         return signal
 
 ##  Synth module base class.
@@ -184,7 +179,7 @@ class synthmod(metaclass=ABCMeta):
     #  @param signal Audio signal
     @abstractmethod
     def process(self, note, signal):
-        raise NotImplementedError("Must override process method in synth module")
+        raise NotImplementedError("Must override process method in synth module", self.__name__)
 
     ##
     @classmethod

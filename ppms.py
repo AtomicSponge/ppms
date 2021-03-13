@@ -93,7 +93,9 @@ def load_ppms_modules(settings, patches):
                 if inspect.isclass(obj) and obj.__module__ == mod.__name__:
                     #  Make sure the class extends synthmod base
                     if obj.IS_SYNTHMOD:
-                        patches.add_module(obj)
+                        try:
+                            patches.add_module(obj)
+                        except Exception as e: raise
                         print("Loaded module: ", obj.__module__)
                         break
         except:
@@ -283,8 +285,8 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
                     note_map.update({ signal['note']: [ signal['waveform'], signal['impact'] ] })
                 if signal['status'] == 'off': del note_map[signal['note']]
                 note_queue.task_done()
-            except:
-                break  #  Loop until queue is processed
+            #  Loop until queue is processed
+            except: break
 
         #  Generate the audio signal
         audio_signal = np.zeros(shape=(frame_size,1), dtype=np.float32)
@@ -294,8 +296,10 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
                 #  volume * impact * waveform(note, pitch_bend, frame_size, time_index)
                 audio_signal = np.add(audio_signal, (settings['master_volume'] * note_data[1]) *
                     patches.patch(note, getattr(osc, note_data[0])(note, pitch_bend, frame_size, time_index)))
-            except:
-                pass  #  On errors generate nothing
+            #  Raise error if there's a problem with a module implementation
+            except NotImplementedError as e: raise
+            #  On all other errors generate nothing
+            except: pass
         outdata[:] = audio_signal
 
         #  Increment time index for next frame
