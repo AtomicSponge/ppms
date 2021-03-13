@@ -181,7 +181,8 @@ class synthmod(metaclass=ABCMeta):
 
 ##  Mod wheel control part.
 #  Lets a synth module read in the mod wheel value.
-#  This gets set within the ppms input coroutine.
+#  This is set within the ppms input coroutine.
+#  Extend this and call self.get_mod_value() to read.
 class mod_control(metaclass=ABCMeta):
     __MOD_VALUE = 0
 

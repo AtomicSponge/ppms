@@ -17,6 +17,7 @@
 
 import os, sys, time, json, asyncio, queue
 import argparse, importlib, inspect
+from typing import Final
 
 import numpy as np
 import sounddevice as sd
@@ -123,10 +124,10 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
     ##################################################################
     class midi_input_handler(object):
         def __init__(self, port, weight, noimpact, verbose):
-            self.__port = port
-            self.__weight = weight
-            self.__noimpact = noimpact
-            self.__verbose = verbose
+            self.__port: Final = port
+            self.__weight: Final = weight
+            self.__noimpact: Final = noimpact
+            self.__verbose: Final = verbose
             self.__wallclock = time.time()
 
         #  ᕕ(⌐■_■)ᕗ ♪♬  MIDI Input handler callback
