@@ -24,7 +24,7 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.parts import oscillator, patchboard
+from mod.parts import oscillator, patchboard, mod_control
 
 ##################################################################
 #  Function to return a map of the default settings
@@ -200,7 +200,7 @@ async def ppms_input(exit_event, settings, patches, gate, port, noimpact, verbos
                     #  Check the mod wheel
                     elif(bindings[0] == "mod_wheel"):
                         settings['mod_value'] = message[2]
-                        patches.set_mod_value(settings['mod_value'])
+                        mod_control.set_mod_value(settings['mod_value'])
                         return
                     #  Add another binding
                     #elif:

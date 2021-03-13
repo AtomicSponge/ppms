@@ -160,15 +160,6 @@ class patchboard(object):
                 pass
         return signal
 
-    ##  Set mod wheel value.
-    #  @param self Object pointer
-    #  @param value Mod value
-    def set_mod_value(self, value):
-        try:
-            mod_control.set_mod_value(value)
-        except:
-            pass
-
 ##  Synth module base class.
 class synthmod(metaclass=ABCMeta):
     ##  Flag to check if valid synth module
@@ -189,6 +180,8 @@ class synthmod(metaclass=ABCMeta):
         raise NotImplementedError("Must override process method in synth module")
 
 ##  Mod wheel control part.
+#  Lets a synth module read in the mod wheel value.
+#  This gets set within the ppms input coroutine.
 class mod_control(metaclass=ABCMeta):
     __MOD_VALUE = 0
 
