@@ -25,7 +25,7 @@ import sounddevice as sd
 import rtmidi
 from rtmidi.midiutil import open_midiinput
 
-from mod.parts import oscillator, patchboard, mod_control
+from mod.parts import oscillator, patchboard, synthmod, mod_control
 
 ##################################################################
 #  Function to return a map of the default settings
@@ -261,6 +261,8 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
     #  Audio callback.  Generates the waveforms based on the input
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map, note_queue
+
+        synthmod.set_frame_size(frame_size)
 
         #  Check pitch bend
         pitch_bend = 0

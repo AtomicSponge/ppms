@@ -49,10 +49,10 @@ class oscillator(object):
 
     ##  Calculate pitch bend.
     #  @param self Object pointer
-    #  @param note_freq Calculated note frequency
-    #  @param pich_bend Calculated pitch bend amount
+    #  @param note_freq Note frequency
+    #  @param pich_bend Pitch bend amount
     #  @return The note frequency with pitch bend factored
-    def __check_pitch_bend(self, note_freq, pitch_bend):
+    def __calc_pitch_bend(self, note_freq, pitch_bend):
         if pitch_bend != 0: note_freq = note_freq * pitch_bend
         return note_freq
 
@@ -65,7 +65,7 @@ class oscillator(object):
     #  @param time_data Position in waveform
     #  @return Generated phase shift data
     def __OSCFUNC(self, note, pitch_bend, frame_size, time_data):
-        return (2 * np.pi * self.__check_pitch_bend(ppms_algs.A440(note), pitch_bend)
+        return (2 * np.pi * self.__calc_pitch_bend(ppms_algs.A440(note), pitch_bend)
             * self.__calc_sample_data(frame_size, time_data))
 
     ##  Return a sawtooth wave sample.
@@ -109,6 +109,7 @@ class oscillator(object):
         return np.sin(self.__OSCFUNC(note, pitch_bend, frame_size, time_data))
 
 ##  Creates "patches" of "synth modules" to process the signal.
+#  The main ppms application sets this up from its configuration file.
 class patchboard(object):
     ##  Initialize patchboard.
     #  @param self Object pointer
@@ -120,7 +121,10 @@ class patchboard(object):
     #  @param self Object pointer
     #  @param mod Synth module to add
     def add_module(self, mod):
-        self.__patches.append(mod)
+        try:
+            self.__patches.append(mod)
+        except:
+            raise RuntimeError("Error adding module to patchboard")
 
     ##  Clear all loaded modules.
     #  @param self Object pointer
@@ -161,13 +165,16 @@ class patchboard(object):
         return signal
 
 ##  Synth module base class.
+#  Extend this object to create a usable synth module.
 class synthmod(metaclass=ABCMeta):
     ##  Flag to check if valid synth module
     IS_SYNTHMOD: Final = True
-    ##  Midi min
+    ##  Midi control minimum value
     MIDI_MIN: Final = 0
-    ##  Midi max
+    ##  Midi control maximum value
     MIDI_MAX: Final = 127
+    ##
+    __FRAME_SIZE = 0
 
     ##  Synth module process member for modifying signal.
     #  Override this to implement a custom process method.
@@ -179,17 +186,34 @@ class synthmod(metaclass=ABCMeta):
     def process(self, note, signal):
         raise NotImplementedError("Must override process method in synth module")
 
+    ##
+    @classmethod
+    def set_frame_size(cls, value):
+        cls.__FRAME_SIZE = value
+
+    ##
+    @classmethod
+    def get_frame_size(cls):
+        return cls.__FRAME_SIZE
+
 ##  Mod wheel control part.
 #  Lets a synth module read in the mod wheel value.
-#  This is set within the ppms input coroutine.
 #  Extend this and call self.get_mod_value() to read.
 class mod_control(metaclass=ABCMeta):
     __MOD_VALUE = 0
 
+    ##  Set the mod wheel value.
+    #  This is set within the ppms input coroutine.
+    #  @param cls Object pointer
+    #  @param value Value to set mod wheel to
     @classmethod
     def set_mod_value(cls, value):
         cls.__MOD_VALUE = value
 
+    ##  Get the mod wheel value.
+    #  Called within a synth module.
+    #  @param cls Object pointer
+    #  @return Current mod wheel value
     @classmethod
     def get_mod_value(cls):
         return cls.__MOD_VALUE

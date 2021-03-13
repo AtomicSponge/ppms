@@ -33,9 +33,9 @@ class envelope(synthmod):
     #  @param signal Signal data to modify
     #  @return Modified signal data
     def process(self, note, signal):
-        #print("note: ", note)
-        #print("freq: ", self.calc_frequency(note))
-        #print("period: ", 1 / ppms_algs.A440(note))
+        #print(2 * np.pi * 1 / ppms_algs.A440(note))
+        #print(np.prod(signal.shape))
+        print(self.get_frame_size())
         if self.__attack > 0 or \
         self.__decay > 0 or \
         self.__sustain > 0 or \
