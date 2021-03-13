@@ -23,6 +23,10 @@ class envelope(synthmod):
     #  @param self Object pointer
     def __generate_envelope(self):
         pass
+        #self.__attack / self.MIDI_MAX
+        #self.__decay / self.MIDI_MAX
+        #self.__sustain / self.MIDI_MAX
+        #self.__release / self.MIDI_MAX
 
     ## Process envelope.
     #  @param self Object pointer
@@ -32,6 +36,11 @@ class envelope(synthmod):
         #print("note: ", note)
         #print("freq: ", self.calc_frequency(note))
         #print("period: ", 1 / self.calc_frequency(note))
+        if self.__attack > 0 or \
+        self.__decay > 0 or \
+        self.__sustain > 0 or \
+        self.__release > 0:
+            return signal * self.__envelope
         return signal
 
     ##  Build an array of save data for the module.

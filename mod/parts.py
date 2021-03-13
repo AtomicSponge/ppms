@@ -22,6 +22,9 @@ import numpy as np
 from scipy import signal
 from abc import ABCMeta, abstractmethod
 
+#  Define the a440 algorithm as a lambda expression
+a440 = lambda note: math.pow(2, (note - 69) / 12) * 440
+
 ##  Generates samples of different waveforms.
 class oscillator(object):
     ##  Initialize and generate sample data.
@@ -35,8 +38,7 @@ class oscillator(object):
     #  @param self Object pointer
     #  @param note Note to calculate
     #  @return The calculated frequency
-    def __calc_frequency(self, note):
-        return math.pow(2, (note - 69) / 12) * 440
+    def __calc_frequency(self, note): return a440(note)
 
     ##  Calculate period.
     #  @param self Object pointer
@@ -212,8 +214,7 @@ class synthmod(metaclass=ABCMeta):
     #  @param note Note to calculate
     #  @return The calculated frequency
     @classmethod
-    def calc_frequency(self, note):
-        return math.pow(2, (note - 69) / 12) * 440
+    def calc_frequency(self, note): return a440(note)
 
 ##  Mod wheel control part.
 class mod_control(metaclass=ABCMeta):
