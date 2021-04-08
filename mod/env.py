@@ -7,7 +7,7 @@
 #
 
 import numpy as np
-from .parts import synthmod, ppms_algs
+from .parts import synthmod
 
 ##  Envelope - ADSR
 class envelope(synthmod):
@@ -16,17 +16,51 @@ class envelope(synthmod):
     __sustain = 0
     __release = 0
 
-    __envelope = np.zeros(shape=(10,1), dtype=np.float32)
+    __envelope = np.zeros(shape=(100,1), dtype=np.float32)
+
+    __calc_interval = lambda first, second, steps: (second - first) / steps
 
     ##  Generate the envelope signal.
     #  This is called after a parameter is changed.
     #  @param self Object pointer
     def __generate_envelope(self):
-        pass
-        #self.__attack / self.MIDI_MAX
-        #self.__decay / self.MIDI_MAX
-        #self.__sustain / self.MIDI_MAX
-        #self.__release / self.MIDI_MAX
+        self.__envelope[0] = 0.0
+        self.__envelope[24] = self.__attack / self.MIDI_MAX
+        self.__envelope[49] = self.__decay / self.MIDI_MAX
+        self.__envelope[74] = self.__sustain / self.MIDI_MAX
+        self.__envelope[99] = self.__release / self.MIDI_MAX
+
+        interval = self.__calc_interval(self.__envelope[0], self.__envelope[24], 25)
+        counter = 1
+        current = self.__envelope[0]
+        while counter < 24:
+            current += interval
+            self.__envelope[counter] = current
+            counter += 1
+
+        interval = self.__calc_interval(self.__envelope[24], self.__envelope[49], 25)
+        counter = 25
+        current = self.__envelope[24]
+        while counter < 49:
+            current += interval
+            self.__envelope[counter] = current
+            counter += 1
+
+        interval = self.__calc_interval(self.__envelope[49], self.__envelope[74], 25)
+        counter = 50
+        current = self.__envelope[49]
+        while counter < 74:
+            current += interval
+            self.__envelope[counter] = current
+            counter += 1
+
+        interval = self.__calc_interval(self.__envelope[74], self.__envelope[99], 25)
+        counter = 75
+        current = self.__envelope[74]
+        while counter < 99:
+            current += interval
+            self.__envelope[counter] = current
+            counter += 1
 
     ## Process envelope.
     #  @param self Object pointer
@@ -35,12 +69,14 @@ class envelope(synthmod):
     def process(self, note, signal):
         #print(2 * np.pi * 1 / ppms_algs.A440(note))
         #print(np.prod(signal.shape))
-        print(self.get_frame_size())
         if self.__attack > 0 or \
         self.__decay > 0 or \
         self.__sustain > 0 or \
         self.__release > 0:
-            return signal * self.__envelope
+            pass
+            #print(self.__envelope)
+            #print(signal.size)
+            #return signal * self.__envelope
         return signal
 
     ##  Build an array of save data for the module.

@@ -22,22 +22,31 @@ Requires the following Python packages to be installed:
 
 ## Parts
 
-parts.py
+The file __parts.py__ contains a series of classes used to implement the functionality of a synthesizer.
+
+### Algorithms
+Algorithms for use throughout __ppms__.  Implemented in the __ppms_algs__ class.
 
 ### Oscillators
-Generates a waveform based on the following types:
+Generates waveforms based on the following types:
  - sawtooth /|
  - triangle /\
  - square |_|
  - sine ~
 
-You can select which waveform is generated using MIDI program change.
+These are implemented in the __oscillator__ class.  You can select which waveform is generated using MIDI program change.
 
 ### Patchboard
 
+Loads modules listed in settings and stores for processing.  Implemented in the __patchboard__ class.  When a note is played, the data is passed through each loaded module in order.
+
 ### Synth Modules
 
+Processes the note data.  This allows implementation of effect processors.  An abstract base class __synthmod__ is used to create a new module.  See the section on *Modules* for more information.
+
 ### Mod Wheel
+
+An abstract base class __mod_control__ that *Synth Module* classes can extend to allow reading from a mod wheel on a keyboard.
 
 -----
 
@@ -127,7 +136,7 @@ __Format:__ binding_name, midi_msg[0], midi_msg[1]
 ```
 
 #### Saving data
-Modules will store their data values here on shutdown, then restore them on next run.
+Modules will store their setting data here on shutdown, then restore them on next run.
 ```
 "module_data": []
 ```
@@ -135,12 +144,11 @@ Modules will store their data values here on shutdown, then restore them on next
 -----
 
 ## Modules
-
-To make a module, create a Python file in the *mod* folder.  Define the module as a class, then define the following functions.
+To make a module, create a Python file in the *mod* folder.  Define the module as a class and extend __synthmod__ from __parts.py__.  At minimum the __process__ function needs to be defined.  The class can then be composed as following:
 
 - __process function__ - Define what happens with the signal.
 ```
-def process(self, signal):
+def process(self, note, signal):
     #  Do something with the signal
     return signal
 ```
@@ -152,13 +160,6 @@ def save_data(self):
         [ "example.control_a", self.value_a ],
         [ "example.control_b", self.value_b ]
     ]
-```
-
-- __gate_signal function__ - *Optional* - Receive and process gate signals.
-```
-def gate_signal(self, signal):
-    #  Do something with the gate signal
-    pass
 ```
 
 For each control in the module, create a seperate function to set its value.  Then to create bindings to these controls, use the format __class_name.function_name__.
@@ -174,9 +175,10 @@ class test_module(synthmod):
 
     ## Test process, simply print the test_value.
     #  @param self Object pointer
+    #  @param note The note frequency being played
     #  @param signal Signal data to modify
     #  @return Modified signal data
-    def process(self, signal):
+    def process(self, note, signal):
         if self.__test_value > self.MIDI_MIN:
             if self.__test_value == self.MIDI_MAX:
                 print("Text value at max: ", self.__test_value)
@@ -198,18 +200,6 @@ class test_module(synthmod):
     #  @param val New value to set
     def set_a_value(self, val):
         self.__test_value = val
-```
-
------
-
-## Gate Signal
-
-The *gate signal* is a dictionary and has the following format:
-```
-"status": "on" or "off",
-"note": note_value,
-"waveform": waveform_name,
-"impact": impact_value
 ```
 
 -----

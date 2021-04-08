@@ -168,8 +168,6 @@ class synthmod(metaclass=ABCMeta):
     MIDI_MIN: Final = 0
     ##  Midi control maximum value
     MIDI_MAX: Final = 127
-    ##
-    __FRAME_SIZE = 0
 
     ##  Synth module process member for modifying signal.
     #  Override this to implement a custom process method.
@@ -181,20 +179,11 @@ class synthmod(metaclass=ABCMeta):
     def process(self, note, signal):
         raise NotImplementedError("Must override process method in synth module", self.__name__)
 
-    ##
-    @classmethod
-    def set_frame_size(cls, value):
-        cls.__FRAME_SIZE = value
-
-    ##
-    @classmethod
-    def get_frame_size(cls):
-        return cls.__FRAME_SIZE
-
 ##  Mod wheel control part.
 #  Lets a synth module read in the mod wheel value.
 #  Extend this and call self.get_mod_value() to read.
 class mod_control(metaclass=ABCMeta):
+    ##  Store the mod wheel value.
     __MOD_VALUE = 0
 
     ##  Set the mod wheel value.

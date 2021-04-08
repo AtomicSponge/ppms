@@ -95,8 +95,8 @@ def load_ppms_modules(settings, patches):
                     if obj.IS_SYNTHMOD:
                         try:
                             patches.add_module(obj)
+                            print("Loaded module: ", obj.__module__)
                         except Exception as e: raise
-                        print("Loaded module: ", obj.__module__)
                         break
         except:
             #  Report error and continue
@@ -263,8 +263,6 @@ async def ppms_output(exit_event, device, settings, patches, note_queue, osc):
     #  Audio callback.  Generates the waveforms based on the input
     def audio_callback(outdata, frame_size, time, status):
         nonlocal time_index, settings, osc, patches, note_map, note_queue
-
-        synthmod.set_frame_size(frame_size)
 
         #  Check pitch bend
         pitch_bend = 0
